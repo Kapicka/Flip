@@ -5,7 +5,6 @@ import Display from '../display';
 import centerSpriteX from '../utils'
 import GameInfo from '../gameInfo';
 import Textt from '../textt'
-import Ovladac from "../Ovladac";
 
 let offsetY
 let arrowLeft
