@@ -25,21 +25,15 @@ const Display = {
 
 
             if (displayRatio > idealRatio) {
-                console.log('jsem iphonex')
                 this.gamingArea.width = ((this.height / 9) * 16)
             } else {
                 this.gamingArea.height = ((this.width / 16) * 9)
-                console.log('jsem ipad width', this.gamingArea.width)
             }
 
-            console.log('gmaing width', this.gamingArea.width)
-            console.log('gmaing height', this.gamingArea.height)
 
             this.gamingArea.scaleX = this.gamingArea.width / cw
             this.gamingArea.scaleY = this.gamingArea.height / ch
 
-            console.log(this.gamingArea.scaleX)
-            console.log(this.gamingArea.scaleY)
             this.scaleX = window.innerWidth / cw
             this.scaleY = window.innerHeight / ch
         }

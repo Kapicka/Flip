@@ -1,16 +1,6 @@
-import GameInfo from './gameInfo'
 import Display from './display'
 import Messenger from './messenger'
-
-
-function sendEnemy(id, character, x, y) {
-    Messenger.socket.emit('enemycreated', {
-        id: id,
-        character: character,
-        x: x,
-        y: y
-    })
-}
+import GameInfo from "./gameInfo";
 
 let nextId = 0
 const EnemyFactory = {
@@ -19,21 +9,22 @@ const EnemyFactory = {
         this.jumpingEnemies = ['frog']
         this.flyingEnemies = ['bird']
         this.platformTypes = ['gapPlatform', 'bigPlatform']
+        this.velocity = 150
 
-        this.createEnemy = () => {
+
+        this.createEnemy = (level) => {
             let sceneWidth = scene.cameras.main.width
             let leftSideX = scene.cameras.main.x
             let scx = Display.gamingArea.scaleX
             let scy = Display.gamingArea.scaleY
             let enemyScale = 5 * scx
             let rightSideX = leftSideX + sceneWidth
-            let enemyNumber = Math.floor(Math.random() * GameInfo.level + 1)
-            GameInfo.level * Math.floor(GameInfo.level * Math.random)
-
-            let velocity = GameInfo.level * 100 * Display.scaleX //mělo by to tak být...
+            let enemyNumber = Math.floor(Math.random() * level + 1)
+            if (enemyNumber === 0) enemyNumber++
+            let velocity = this.velocity// level * 200 * Display.scaleX //mělo by to tak být...
             let direction = GameInfo.direction
             let cameraY = scene.cameras.main.y
-            let x = Display.gamingArea.widt
+            let x = Display.gamingArea.width
             let y = 15 * Display.gamingArea.scaleY
 
             let characterNumber = undefined
@@ -49,7 +40,7 @@ const EnemyFactory = {
                 case 1:
                     characterNumber = Math.floor(Math.random() * this.runningEnemies.length)
                     character = this.runningEnemies[characterNumber]
-                    enemy = scene.physics.add.sprite(x, 30, 'sprites', character + '_run_0' + scene.foregroundColor)
+                    enemy = scene.physics.add.sprite(x, 90 * scy, 'sprites', character + '_run_0' + scene.foregroundColor)
                         .setVelocityX(velocity)
                     scene.fallableObjects.add(enemy)
                     break;
@@ -57,11 +48,11 @@ const EnemyFactory = {
                     characterNumber = Math.floor(Math.random() * this.jumpingEnemies.length)
                     character = this.jumpingEnemies[characterNumber]
                     enemy = scene.physics.add.sprite(x, y, 'sprites', character + '_run_0' + scene.foregroundColor)
-                        .setVelocityX(velocity / 3)
+                        .setVelocityX(velocity / 2)
                     scene.physics.add.overlap(enemy, scene.platforms,
                         (e, p) => {
                             e.play('frog' + 'run' + scene.foregroundColor)
-                            e.setVelocityY(-300 * scy)
+                            e.setVelocityY(-250 * scy)
                             e.play('frog' + 'jump' + scene.foregroundColor)
                         })
                     scene.jumpingAnimals.add(enemy)
@@ -88,13 +79,14 @@ const EnemyFactory = {
             enemy.anim = 'run'
             enemy.play(character + enemy.anim + scene.foregroundColor)
 
-            Messenger.socket.emit('enemycreated', {
-                flipped: flip,
-                id: enemy.id,
-                character: enemy.character,
-                x: enemy.x / Display.scaleX,
-                y: enemy.y / Display.scaleY
-            })
+            if (GameInfo.mode === 'multi') {
+                Messenger.socket.emit('enemycreated', {
+                    id: enemy.id,
+                    character: enemy.character,
+                    x: enemy.x,
+                    y: enemy.y
+                })
+            }
             return enemy
         }
     }

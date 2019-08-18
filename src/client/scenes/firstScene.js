@@ -26,49 +26,67 @@ export default class FirstScene extends Phaser.Scene {
         let scx = Display.gamingArea.scaleX
         let scy = Display.gamingArea.scaleY
 
+        let offsetY = 50 * scy
+
 
         //MAIN TEXT POSITION
-        let mainTextX = x + cx
-        let mainTextY = 125 * scy
+        let mainTextX = x + cx + 70 * scx
+        let mainTextY = 60 * scy
         let mainTextScale = 0
 
         //DUDE POSITION
         let dudeY = 77 * scy
-        let dudeX = cx + 10 * scx
+        let dudeX = x + cx + 10 * scx
 
+        //SINGLE PLAYER BUTTON POSITION
+        let onePlayerButtonX = x + cx
+        let onePlayerButtonY = 200 * scy
         //PLAY BUTTON POSITION
-        let playButtonPossitionX = cx
-        let playButtonPossitionY = 200 * scy
+        //MULTIPLAYER BUTTON POSITION
+        let twoPlayerButtonX = onePlayerButtonX
+        let twoPlayerButtonY = onePlayerButtonY + offsetY
+        //TUTORIAL BUTTON POSITION
+        let tutorialButtonX = onePlayerButtonX
+        let tutorialButtonY = twoPlayerButtonY + offsetY
 
-        //TUTOR BUTTON POSITION
 
-
-        let mainText = this.add.image(cx, 60 * scy, 'nadpis')
+        let mainText = this.add.image(mainTextX, mainTextY, 'nadpis')
             .setOrigin(0, 0)
             .setScale(0.3)
-        mainText.setX(cx - mainText.width * 0.3 / 2)
+        mainText.setX(x + cx - mainText.width * 0.3 / 2)
 
-        //PLAY BUTTON
-        this.add.image(playButtonPossitionX, playButtonPossitionY, 'buttons', 'playButtonrgb(255,255,255)')
+        this.add.image(onePlayerButtonX, onePlayerButtonY, 'buttons', 'onePlayerButtonrgb(255,255,255)')
             .setScale(3)
             .setScale(2.5)
             .setInteractive()
             .on('pointerup', () => {
-                this.scene.switch('menuScene')
+                GameInfo.mode = 'single'
+                this.scene.start('menuScene')
+                this.scene.sleep()
+            })
+        //SINGLE BUTTON
+        this.add.image(twoPlayerButtonX, twoPlayerButtonY, 'buttons', 'twoPlayerButtonrgb(255,255,255)')
+            .setScale(3)
+            .setScale(2.5)
+            .setInteractive()
+            .on('pointerup', () => {
+                GameInfo.mode = 'multi'
+                this.scene.start('menuScene')
                 this.scene.sleep()
             })
 
         //TUTOR BUTTON
-        this.add.image(cx, 260 * scy, 'buttons', 'tutorButtonrgb(255,255,255)')
+        this.add.image(tutorialButtonX, tutorialButtonY, 'buttons', 'tutorialButtonrgb(255,255,255)')
             .setScale(2.5)
             .setInteractive()
             .on('pointerup', () => {
                 GameInfo.prevScene = this.scene.key
-                this.scene.switch('tutorScene')
+                GameInfo.mode = 'single'
+                this.scene.start('tutorialScene')
                 this.scene.sleep()
             })
         //DUDE
-        this.add.sprite(cx + 10 * scx, 77 * scy, 'sprites', 'dude_run1_rgb(255,255,255')
+        this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run_1rgb(255,255,255)')
             .play('dudejumprgb(255,255,255)')
             .setScale(5)
             .setInteractive()
@@ -81,6 +99,11 @@ export default class FirstScene extends Phaser.Scene {
     }
 
     update(t, delta) {
+        if (window.innerWidth < window.innerHeight) {
+            document.getElementById('rotateScreen').style.visibility = 'visible'
+        } else {
+            document.getElementById('rotateScreen').style.visibility = 'hidden'
+        }
         this.time++
         if (this.time > 900) {
             this.time = 0

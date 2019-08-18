@@ -1,5 +1,6 @@
 import Display from "./display";
-import Messenger from "./messenger"
+import Messenger from "./messenger";
+import GameInfo from "./gameInfo";
 
 const runnerStates = {
     states: {},
@@ -8,11 +9,15 @@ const runnerStates = {
 
         function jump() {
             runner.stat = runner.states['jumpingState']
+            runner.prev.anim = runner.anim
             runner.anim = 'jump'
-            runner.setVelocityY(-450 * Display.gamingArea.scaleY)
+            runner.setVelocityY(-350 * Display.gamingArea.scaleY)
             let anim = runner.character + runner.anim + scene.foregroundColor
             runner.play(anim)
-            Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+            if (GameInfo.mode === 'multi') {
+                Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+            }
+            return true
         }
 
         function grounded() {
@@ -20,40 +25,44 @@ const runnerStates = {
             runner.setState('runningState')
         }
 
-        function duck() {
-            console.log('ALL THE DUCKS ARE SINGING IN THE WATER')
-            runner.stat = runner.states['duckState']
-        }
-
         function run() {
+            runner.prev.anim = runner.anim
             runner.anim = 'run'
             let anim = runner.character + runner.anim + scene.foregroundColor
             runner.play(anim)
             runner.stat = runner.states['runningState']
-            Messenger.socket.emit('animchanged',
-                {id: runner.id, anim: runner.anim})
-
+            if (GameInfo.mode === 'multi') {
+                if (GameInfo.mode === 'multi') {
+                    Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+                }
+            }
+            return true
         }
 
         function emptyf() {
+            return false
         }
 
-        //RUNNING STATE
+//RUNNING STATE
         this.states.runningState = {
             duck: emptyf, run: emptyf, grounded: emptyf, jump
         }
-        //Sliding state
+//Sliding state
         this.states.slidingState = {
             duck: emptyf, run: emptyf, grounded: emptyf, jump
         }
-        //JUMPING STATE
+//JUMPING STATE
         this.states.jumpingState = {
             jump: emptyf,
             duck: function () {
+                runner.prev.anim = runner.anim
                 runner.anim = 'duck'
-                runner.setVelocityY(800 * Display.gamingArea.scaleY)
+                runner.setVelocityY(900 * Display.gamingArea.scaleY)
                 runner.play(runner.character + runner.anim + scene.foregroundColor)
-                Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+                if (GameInfo === 'multi') {
+                    Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+                }
+                return true
             },
             grounded: run
         }

@@ -46,7 +46,7 @@ export default class PlayerDisconnectedScene extends Phaser.Scene {
             })
         let textX = this.cameras.main.x / 2
         let textY = this.cameras.main.y / 2
-        let text = new Textt(this, mainTextX, mainTextY, '2 dude left...',
+        let text = new Textt(this, mainTextX, mainTextY, '2 player left...',
             fg, mainTextScale)
     }
 

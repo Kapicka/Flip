@@ -1,11 +1,14 @@
 {
   "name": "flip",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.16.0"
+  },
   "description": "",
   "main": "src/client/game.js",
   "scripts": {
     "start": "cd src/server/;node server.js",
-    "build": "parcel build src/client/index.html",
+    "build": "rm -rf ./dist/*;parcel build src/client/index.html --out-dir ./prod/dist/;cp -rf ./src/server/ ./prod",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

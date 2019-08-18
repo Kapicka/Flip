@@ -12,12 +12,10 @@ export default class WaitingScene extends Phaser.Scene {
     constructor() {
         super({key: 'waitingScene'})
     }
-
     preload() {
     }
 
     create() {
-
         let repeated = 0
         //POSITIONS
         chosenColor = GameInfo.players.localPlayer.color
@@ -38,8 +36,6 @@ export default class WaitingScene extends Phaser.Scene {
         let dudeY = y + (cy + 20 * scy)
         let dudeX = x + cx * scx
         let dudeScale = 5 * scx
-        console.log('x', dudeY)
-        console.log('y', dudeX)
         //MAIN TEXT POSITION
         let mainTextX = x + cx * scx
         let mainTextY = y + 120 * scy
@@ -69,13 +65,13 @@ export default class WaitingScene extends Phaser.Scene {
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
+                Messenger.socket.emit('gameover')
                 Messenger.socket.disconnect()
                 this.scene.start('firstScene')
-                this.scene.stop('gameScene')
             })
 
         //MAIN TEXT
-        let mainText = new Textt(this, mainTextX, mainTextY, 'Waiting for 2 dude...', chosenColor, mainTextScale)
+        let mainText = new Textt(this, mainTextX, mainTextY, 'Waiting for 2 player', chosenColor, mainTextScale)
         mainText.setX(this.cameras.main.width / 2 - mainText.getWidth() / 2)
 
 

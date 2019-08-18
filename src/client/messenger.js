@@ -5,7 +5,7 @@ import GameActions from './gameActions';
 const Messenger = {
     init: function (scene) {
         GameInfo.CurrentScene = scene
-        this.socket = io('localhost:8081')
+        this.socket = io()
         this.socket.on('handshake', (localId) => {
             GameInfo.players.localPlayer.id = localId
             this.socket.emit('playerInfo', GameInfo.players.localPlayer)
@@ -44,7 +44,6 @@ const Messenger = {
             })
         })
     },
-
     initGameComunication: function () {
         this.socket.on('enemydestroyd', (id) => {
             GameInfo.currentScene.movableObjects.getChildren().forEach(e => {
@@ -66,15 +65,17 @@ const Messenger = {
         })
         this.socket.on('enemycreated', enemy => {
             let x = (Display.width - Display.gamingArea.width)
-            let enm = GameInfo.currentScene.add.sprite(x + enemy.x, enemy.y, enemy.character + '_run_0' + GameInfo.CurrentScene.foregroundColor)
-                .play(enemy.character + 'run' + GameInfo.currentScene.foregroundColor
-                ).setFlipX(enemy.fliped)
+            let fg = GameInfo.currentScene.foregroundColor
+            let enm = GameInfo.currentScene.add.sprite(x + enemy.x, enemy.y, enemy.character + '_run_0' + fg)
+            enm.play(enemy.character + 'run' + fg)
+            enm.setFlipX(enemy.fliped)
             enm.setScale(5 * Display.gamingArea.scaleX)
             enm.id = enemy.id
             enm.character = enemy.character
             GameInfo.currentScene.gameObjects.add(enm)
             GameInfo.currentScene.movableObjects.add(enm)
         })
+
         this.socket.on('doomed', (enemyId) => {
             GameInfo.currentScene.lives.getChildren().pop().destroy()
             GameInfo.currentScene.movableObjects.getChildren().forEach(e => {
@@ -82,33 +83,25 @@ const Messenger = {
                     e.setFlipY(true)
                 }
             })
-
         })
         this.socket.on('animchanged', (info) => {
             let sc = GameInfo.currentScene
+            let fg = sc.foregroundColor
             let sprites = sc.gameObjects.getChildren()
 
             for (let i = 0; i < sprites.length - 1; i++) {
-
                 if (info.id === sprites[i].id) {
-
                     let s = sprites[i].character
-                    let fg = sc.foregroundColor
                     let a = info.anim
-
                     sprites[i].anim = a
                     sprites[i].play(s + a + fg)
-
                 }
             }
         })
         this.socket.on('dudemoved', (runnerCoords) => {
-            console.log('to nic to jen tak')
-            // GameInfo.currentScene.dude.setX(runnerCoords.x * Display.gamingArea.scaleX + (Display.width - Display.gamingArea.width))
             GameInfo.currentScene.dude.setY(runnerCoords.y * Display.gamingArea.scaleY)
         })
         this.socket.on('gameover', () => {
-
             Messenger.socket.disconnect()
             GameInfo.currentScene.scene.start('gameOverScene', 'koko')
 

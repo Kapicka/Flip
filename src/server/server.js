@@ -6,22 +6,21 @@ const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server, {serveClient: false})
 const file = '../client/index.html'
-
 const option = {}
 const bundler = new Bundler(file, option)
 server.listen(8081, function () {
     console.log("server na trati")
 })
 app.use(bundler.middleware());
-// app.use('/', express.static('../../dist/'))
+// app.use('/', express.static('./dist/'))
 io.on('connection', socket => {
-    console.log('user connected')
     socket.emit('handshake', socket.id)
 
     socket.on('playerInfo', (player) => {
         let room = RoomManager.getRoom()
         room.addPlayer(socket.id, player)
         socket.join(room.id)
+        console.log('user joined room ' + room.id)
 
         if (room.full) {
             console.log('Go!')
@@ -38,6 +37,7 @@ io.on('connection', socket => {
         })
         socket.on('gameover', () => {
             socket.to(room.id).emit('gameover')
+            RoomManager.destroyRoom(room.id)
         })
         socket.on('gamePaused', () => {
             socket.to(room.id).emit('gamePaused')
@@ -78,10 +78,10 @@ io.on('connection', socket => {
             socket.to(room.id).emit('dudemoved', cords)
         })
         socket.on('disconnect', () => {
-
             socket.to(room.id).emit('leave', socket.id)
-            RoomManager.destroyRoom(room.id)
-            console.log('Room destroyd!!!!', room.id)
+            if (RoomManager.destroyRoom(room.id)) {
+                console.log('Room ' + room.id + 'destroyd')
+            }
 
         })
         socket.on('switchturn', (action) => {

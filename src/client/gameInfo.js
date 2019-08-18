@@ -10,7 +10,7 @@ let GameInfo = {
         this.score = 0
         this.onTurn = false
         this.master = false
-        this.hasTutorial = false
+        this.hasTutorial = true
         this.passedEnemies = 0
         this.players = {}
         this.players.localPlayer = {}
@@ -18,17 +18,14 @@ let GameInfo = {
         this.players.localPlayer.ready = false
         this.players.remotePlayer.ready = false
         this.players.remotePlayer.connected = false
-
-        this.level = 3
+        this.level = 1
         this.direction = 'left'
         this.levelUp = function () {
-            console.log('LEVEL UP IN HERE BITCHES ', GameInfo.level)
             if (this.level < maxLevel) {
                 this.level++
                 console.log('level upped')
             }
         }
-        console.log('GameInfo initialized')
         this.inited = true
     }
 }

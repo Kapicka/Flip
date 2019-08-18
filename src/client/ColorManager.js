@@ -1,4 +1,3 @@
-
 let colors = [
     'rgb(42,127,255)',
     'rgb(153,85,255)',
@@ -16,12 +15,17 @@ const ColorManager = {
         return colors
     },
     getRandomColor: () => {
-        return colors[Math.floor(Math.random() * colors.length)]
+        let index = Math.floor(Math.random() * colors.length)
+        if (index === colors.length) index--
+        return colors[index]
+
     },
     getHex: function (color) {
         return color.substr(4, color.length - 5)
             .split(',')
-            .map(s => { return Number(s) })
+            .map(s => {
+                return Number(s)
+            })
             .reduce((s, c) => {
                 let nc = c.toString(16)
                 if (nc === '0') {

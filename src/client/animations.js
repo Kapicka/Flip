@@ -2,7 +2,6 @@ import ColorManager from "./ColorManager";
 
 const barvy = ColorManager.getColors()
 const enemies = ['dude', 'shaolin', 'deamon', 'bird', 'dog', 'duck', 'pig']
-console.log('colors', barvy)
 const Animations = {
     init: function (scene) {
 
@@ -78,8 +77,6 @@ const Animations = {
                 let key = e + 'run' + c
                 let prefix = e + '_run_'
                 let suffix = c
-                //console.log('prefix', prefix, 'suffix', suffix)
-                // console.log(key)
                 scene.anims.create({
                     key: key,
                     repeat: -1,

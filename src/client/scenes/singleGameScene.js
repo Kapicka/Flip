@@ -7,15 +7,14 @@ import Runner from '../runner'
 import GameInfo from '../gameInfo'
 import GameActions from '../gameActions'
 import Display from '../display'
-import Messenger from '../messenger'
 import Controller from '../controller'
 import ColorManager from "../ColorManager";
 
 let pos = 0
 let isDown = false
-export default class GameScene extends Phaser.Scene {
+export default class SingleGameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'gameScene'})
+        super({key: 'singleGameScene'})
     }
 
     init() {
@@ -27,15 +26,15 @@ export default class GameScene extends Phaser.Scene {
         Controller.init(this)
     }
 
+
     create() {
         Animations.init(this)
         this.foregroundColor = GameInfo.players.localPlayer.color
-        this.backgroundColor = GameInfo.players.remotePlayer.color
+        this.backgroundColor = ColorManager.getRandomColor()
         while (this.foregroundColor === this.backgroundColor) {
             this.backgroundColor = ColorManager.getRandomColor()
         }
         GameInfo.players.remotePlayer.color = this.backgroundColor
-
 
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 
@@ -119,33 +118,29 @@ export default class GameScene extends Phaser.Scene {
                     e.flipY = true
                     this.fallableObjects.remove(e)
                     this.enemies.remove(e)
-                    Messenger.socket.emit('doomed', e.id)
                     d.lives--
                     this.lives.getChildren().pop().destroy()
                     e.passed = true
                 }
             } else {
-                Messenger.socket.emit('gameover')
-                Messenger.socket.disconnect()
                 GameInfo.currentScene.scene.start('gameOverScene', 'koko')
-                GameInfo.currentScene.scene.stop('gameScene')
+                GameInfo.currentScene.scene.stop('singleGameScene')
             }
         })
-        Messenger.initGameComunication()
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
+
+
     update() {
         this.jumpingAnimals.getChildren().forEach(e => {
                 let vel = e.body.velocity.y
                 if (vel > 0 && e.anim != 'run') {
                     e.anim = 'run'
                     e.play(e.character + e.anim + this.foregroundColor)
-                    Messenger.socket.emit('animchanged', {id: e.id, anim: e.anim})
                 } else if (vel < 0 && e.anim != 'jump') {
                     e.anim = 'jump'
                     e.play(e.character + e.anim + this.foregroundColor)
-                    Messenger.socket.emit('animchanged', {id: e.id, anim: e.anim})
                 }
             }
         )
@@ -156,71 +151,45 @@ export default class GameScene extends Phaser.Scene {
             document.getElementById('rotateScreen').style.visibility = 'hidden'
         }
 
-        let enemy = EnemyGenerator.generateEnemy()
+        EnemyGenerator.generateEnemy()
+
         let CWidth = Display.width
         let movableObjectsPos = {}
 
 
-        //Control dude
-        if (GameInfo.onTurn) {
-            let swipe = Controller.getSwipe()
-            if (this.cursors.down.isDown || swipe === 'down') {
-                switchTurn('duck')
-                this.dude.duck()
+        let swipe = Controller.getSwipe()
+        if (this.cursors.down.isDown || swipe === 'down') {
+            this.dude.duck()
+        }
+        if (this.cursors.up.isDown || swipe === 'up') {
+            this.dude.jump()
+        }
+
+
+        this.enemies.getChildren().forEach((e, i) => {
+            let direction = GameInfo.direction
+            if (direction === 'left') {
+                if (e.x < this.dude.x && !e.passed) {
+                    scoreUp(this, e)
+                }
+                if (e.x < 0) {
+                    destroyEnemy(e)
+                }
             }
-            if (this.cursors.up.isDown || swipe === 'up') {
-                switchTurn('jump')
-                this.dude.jump()
+            if (direction === 'right') {
+                if (e.x > this.dude.x && !e.passed) {
+                    scoreUp(this, e)
+                }
+                if (e.x > CWidth) {
+                    destroyEnemy(e)
+                }
             }
-        }
-
-        //Dudes positions
-        if (this.dude.y != this.dude.prevY) {
-            this.dude.prevY = this.dude.y
-            Messenger.socket.emit('dudemoved', {
-                x: ((this.dude.x - (Display.width - Display.gamingArea.width))) / Display.gamingArea.scaleX,
-                y: this.dude.y / Display.gamingArea.scaleY
-            })
-        }
-        //Dudes animations
-
-        //Enemies positions
-        if (this.enemies.getChildren().length) {
-            let leftOffset = Display.width - Display.gamingArea.width
-            this.movableObjects.getChildren().forEach((mo, i) => {
-                movableObjectsPos[mo.id] = {
-                    x: mo.x / Display.gamingArea.scaleX - leftOffset,
-                    y: mo.y / Display.gamingArea.scaleY
-                }
-            })
-            Messenger.socket.emit('enemycoords', movableObjectsPos)
-
-            this.enemies.getChildren().forEach((e, i) => {
-                let direction = GameInfo.direction
-                if (direction === 'left') {
-                    if (e.x < this.dude.x && !e.passed) {
-                        scoreUp(this, e)
-                    }
-                    if (e.x < 0) {
-                        destroyEnemy(e)
-                    }
-                }
-                if (direction === 'right') {
-                    if (e.x > this.dude.x && !e.passed) {
-                        scoreUp(this, e)
-                    }
-                    if (e.x > CWidth) {
-                        destroyEnemy(e)
-                    }
-                }
-            })
-        }
+        })
     }
 }
 
 function destroyEnemy(e) {
     e.destroy()
-    Messenger.socket.emit('enemydestroyd', e.id)
 }
 
 function scoreUp(scene, e) {
@@ -231,17 +200,11 @@ function scoreUp(scene, e) {
     GameInfo.score++
     GameInfo.passedEnemies++
     scene.displaydScore.setScore(GameInfo.score)
-    Messenger.socket.emit('scoreup')
 
     if (GameInfo.passedEnemies > 2 * GameInfo.level) {
         GameInfo.passedEnemies = 0
         GameInfo.levelUp()
-        EnemyFactory.velocity *=1.1
+        EnemyFactory.velocity *= 1.5
     }
 }
 
-function switchTurn(action) {
-    GameInfo.onTurn = false
-    GameActions.flipColor()
-    Messenger.socket.emit('switchturn', action)
-}

@@ -22,6 +22,7 @@ export default class TutorScene extends Phaser.Scene {
     }
 
     create() {
+
         GameInfo.hasTutorial = true
         Animations.init(this)
         let w = Display.gamingArea.width
@@ -82,72 +83,86 @@ export default class TutorScene extends Phaser.Scene {
         let homeButtonY = 30 * scy
         let homeButtonScale = 3 * scx
 
-        let playButton = this.add.sprite(x + w / 2, h / 2 + y, 'buttons',
-            'playButton' + fg)
-            .setScale(2 * scx)
-            .setInteractive()
-            .on('pointerup', () => {
-                Messenger.init(this)
-                this.scene.sleep()
 
-            })
-        if (GameInfo.prevScene === 'firstScene') {
-            playButton.setVisible(false)
-        }
-
-        this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
-            .setScale(homeButtonScale)
-            .setInteractive()
-            .on('pointerup', () => {
-                this.scene.switch('firstScene')
-                this.scene.sleep()
-            })
-        //ENEMAK
-        let index = Math.floor(Math.random() * enemies.length - 0.1)
-        let enemyCharacter = enemies[index] + '_run_0' + fg
-        console.log(enemyCharacter)
-        let enemy = this.add.sprite(enemyX, dudeBottomY, 'sprites',
-            enemyCharacter).setScale(dudeScale)
-        //DUDE TOP LEFT
-        dudes.create(dudeLeftX, dudeTopY, 'sprites', 'dude_jump_0' + fg)
-            .setScale(dudeScale)
-        //DUDE TOP RIGHT
-        dudes.create(dudeRightX, dudeTopY, 'sprites', 'dude_duck_0' + fg)
-            .setScale(dudeScale)
-        //DUDE BOTTOM LEFT
-        dudes.create(dudeLeftX, dudeBottomY, 'sprites', 'dude_run_0' + fg)
-            .setScale(dudeScale)
-        //DUDE BOTTOM RIGHT
-        dudes.create(dudeRightX - 30 * scx, dudeBottomY, 'sprites', 'dude_run_0' + fg)
-            .setScale(dudeScale)
-        //PLATFORM1
-        platfomrs.create(platformLeftX, platformTopY, 'sprites', 'dot' + fg)
-            .setScale(platformWidth, platformHeight)
-        //PLATFORM2
-        platfomrs.create(platformRightX, platformTopY, 'sprites', 'dot' + fg)
-            .setScale(platformWidth, platformHeight)
-        //PLATFORM3
-        platfomrs.create(platformLeftX, platformBottomY, 'sprites', 'dot' + fg)
-            .setScale(platformWidth, platformHeight)
-        //PLATFORM4
-        platfomrs.create(platformRightX, platformBottomY, 'sprites', 'dot' + fg)
-            .setScale(platformWidth, platformHeight)
-
-        let what = 'Press'
+        let pressvsswipe = 'Press'
+        let keyvsnothing = " key"
         if (Display.mobile) {
-            what = 'Swipe'
+            pressvsswipe = 'Swipe'
+            keyvsnothing = " "
         }
-        texts.push(new Textt(this, textLeftX, textTopY, what + ' up to jump', fg, textScale))
-        texts.push(new Textt(this, textRightX, textTopY, what + ' down to fast fall', fg, textScale))
-        texts.push(new Textt(this, textLeftX, textBottomY, 'Play when your color is on ', fg, textScale))
-        texts.push(new Textt(this, textRightX, textBottomY, 'Dont get killed by enemy ', fg, textScale))
+        let jumpingText = pressvsswipe + " up" + keyvsnothing + ' to jump'
+        let stage1 = []
 
-        texts.forEach(t => {
-            t.setX(t.x - t.width / 2)
-        })
-        platfomrs.getChildren().forEach(p => {
-            p.setOrigin(0, 0)
-        })
+        new Textt(this, textLeftX, textTopY, 'Tutorial', fg, 4 * scx)
+        new Textt(this, textLeftX, textTopY + 40 * scy, jumpingText, fg, 3 * scx)
+        //      new Textt(this, textLeftX, textTopY + 40 * scy, , fg, 3 * scx)
+
+        // let playButton = this.add.sprite(x + w / 2, h / 2 + y, 'buttons',
+        //     'playButton' + fg)
+        //     .setScale(2 * scx)
+        //     .setInteractive()
+        //     .on('pointerup', () => {
+        //         Messenger.init(this)
+        //         this.scene.sleep()
+        //
+        //     })
+        // if (GameInfo.prevScene === 'firstScene') {
+        //     playButton.setVisible(false)
+        // }
+        //
+        // this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
+        //     .setScale(homeButtonScale)
+        //     .setInteractive()
+        //     .on('pointerup', () => {
+        //         this.scene.switch('firstScene')
+        //         this.scene.sleep()
+        //     })
+        // //ENEMAK
+        // let index = Math.floor(Math.random() * enemies.length - 0.1)
+        // let enemyCharacter = enemies[index] + '_run_0' + fg
+        // console.log(enemyCharacter)
+        // let enemy = this.add.sprite(enemyX, dudeBottomY, 'sprites',
+        //     enemyCharacter).setScale(dudeScale)
+        // //DUDE TOP LEFT
+        // dudes.create(dudeLeftX, dudeTopY, 'sprites', 'dude_jump_0' + fg)
+        //     .setScale(dudeScale)
+        // //DUDE TOP RIGHT
+        // dudes.create(dudeRightX, dudeTopY, 'sprites', 'dude_duck_0' + fg)
+        //     .setScale(dudeScale)
+        // //DUDE BOTTOM LEFT
+        // dudes.create(dudeLeftX, dudeBottomY, 'sprites', 'dude_run_0' + fg)
+        //     .setScale(dudeScale)
+        // //DUDE BOTTOM RIGHT
+        // dudes.create(dudeRightX - 30 * scx, dudeBottomY, 'sprites', 'dude_run_0' + fg)
+        //     .setScale(dudeScale)
+        // //PLATFORM1
+        // platfomrs.create(platformLeftX, platformTopY, 'sprites', 'dot' + fg)
+        //     .setScale(platformWidth, platformHeight)
+        // //PLATFORM2
+        // platfomrs.create(platformRightX, platformTopY, 'sprites', 'dot' + fg)
+        //     .setScale(platformWidth, platformHeight)
+        // //PLATFORM3
+        // platfomrs.create(platformLeftX, platformBottomY, 'sprites', 'dot' + fg)
+        //     .setScale(platformWidth, platformHeight)
+        // //PLATFORM4
+        // platfomrs.create(platformRightX, platformBottomY, 'sprites', 'dot' + fg)
+        //     .setScale(platformWidth, platformHeight)
+        //
+        // let what = 'Press'
+        // if (Display.mobile) {
+        //     what = 'Swipe'
+        // }
+        // texts.push(new Textt(this, textLeftX, textTopY, what + ' up to jump', fg, textScale))
+        // texts.push(new Textt(this, textRightX, textTopY, what + ' down to fast fall', fg, textScale))
+        // texts.push(new Textt(this, textLeftX, textBottomY, 'Play when your color is on ', fg, textScale))
+        // texts.push(new Textt(this, textRightX, textBottomY, 'Dont get killed by enemy ', fg, textScale))
+        //
+        // texts.forEach(t => {
+        //     t.setX(t.x - t.width / 2)
+        // })
+        // platfomrs.getChildren().forEach(p => {
+        //     p.setOrigin(0, 0)
+        // })
     }
 }
 

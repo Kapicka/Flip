@@ -7,12 +7,16 @@ import GameInfo from '../gameInfo';
 import Textt from '../textt'
 import Ovladac from "../Ovladac";
 
-
+let offsetY
+let arrowLeft
+let arrowRight
 let rotated = false
+let colorIndex
 let time = 0
-let backgroundColor
+let bg
+let fg
+let rectangle
 let borderColor = 'white'
-let chosenColor
 let playButton
 let platform
 let mainText = undefined
@@ -27,7 +31,6 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     init() {
-        GameInfo.init(this)
     }
 
     create() {
@@ -41,6 +44,7 @@ export default class MenuScene extends Phaser.Scene {
         let scx = Display.gamingArea.scaleX
         let scy = Display.gamingArea.scaleY
 
+        offsetY = 20 * scy
         //CHOOSABLE COLORS POSITION
         let rectSize = 20 * scy
         let margin = 8 //* scx
@@ -50,62 +54,87 @@ export default class MenuScene extends Phaser.Scene {
         let rectX = firstRectX
         let borderColor = 'white'
         //DUDE POSITION
-        let dudeY = y + 45 * scy
+        let dudeY = y + 45 * scy + offsetY
         let dudeX = x//will be centered
         let dudeScale = 5 * scx
 
         //PLATFORM POSITIONS
         let platformX = 0 // will be centered
-        let platformY = y + 100 * scy
+        let platformY = y + 100 * scy + offsetY
         let platformScaleX = 400 * scx
         let platformScaleY = 4 * scy
 
         //MAIN TEXT POSITION
         let mainTextX = x + 190 * scx
-        let mainTextY = y + 125 * scy
+        let mainTextY = y + 140 * scy + offsetY
         let mainTextScale = 3 * scx
 
         //PLAY BUTTON POSITION
         let playButtonX = 0 //will be centerd
-        let playButtonY = y + 280 * scy
-        let playButtonScale = 2 * scx
+        let playButtonY = y + 200 * scy + offsetY
+        let playButtonScale = 3 * scx
 
         //HOMEBUTTON POSITION
         let homeButtonX = 30 * scy
         let homeButtonY = 30 * scy
-        let homeButtonScale = 3 * scx
+        let homeButtonScale = 4 * scx
+
+        //
+        let chooseX = cx
+        let chooseY = mainTextY - 10 * scy//cy  * scy
+        let chooseScale = 3 * scx
+        let arrowScale = 6 * scx
+
 
         //Colors
-        backgroundColor = ColorManager.getRandomColor()
-        chosenColor = ColorManager.getRandomColor()
-        while (backgroundColor === chosenColor) {
-            backgroundColor = ColorManager.getRandomColor()
-        }
-        console.log('bg color', backgroundColor)
-        console.log('fg color', chosenColor)
-        mainCamera = this.cameras.main
-        mainCamera.setBackgroundColor(ColorManager.getHex(backgroundColor))
-
+        bg = ColorManager.getRandomColor()
+        colorIndex = Math.floor(Math.random() * colors.length - 1)
+        if (colorIndex === -1) colorIndex = 0
+        let fg = colors[colorIndex]
         //MAIN TEXT
-        mainText = new Textt(this, mainTextX, mainTextY, 'Choose your color', chosenColor, mainTextScale)
-        console.log('width', mainText.getWidth())
+        mainText = new Textt(this, mainTextX, mainTextY, 'Choose your color', fg, mainTextScale)
         mainText.setX(this.cameras.main.width / 2 - mainText.getWidth() / 2)
         //DUDE
-        dude = this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run0' + chosenColor).setScale(dudeScale)
+        dude = this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run_0' + fg).setScale(dudeScale)
             .setOrigin(0, 0)
-        // dude.play('duderun' + chosenColor)
-        dude.play('duderun' + chosenColor)
+        // dude.play('duderun' + fg)
+        dude.play('duderun' + fg)
             .anims.setTimeScale(0.7)
         centerSpriteX(this, dude)
 
         //PLATFORM
-        platform = this.add.sprite(platformX, platformY, 'sprites', 'dot' + chosenColor).setOrigin(0, 0)
+        platform = this.add.sprite(platformX, platformY, 'sprites', 'dot' + fg).setOrigin(0, 0)
             .setScale(platformScaleX, platformScaleY)
         centerSpriteX(this, platform)
+        //
 
+        arrowLeft = this.add.sprite(0, chooseY, 'buttons', 'arrow' + fg)
+            .setScale(arrowScale)
+            .setFlipX(true)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .on('pointerup', () => {
+                colorIndex--
+                if (colorIndex < 0)
+                    colorIndex = colors.length - 1
+                changeColor()
+            })
+        arrowLeft.setX(mainText.x - 35 * scx - arrowLeft.width)
+        // rectangle = this.add.sprite(chooseX, chooseY, 'buttons', 'color' + fg)
+        //     .setScale(chooseScale)
+        arrowRight = this.add.sprite(0, chooseY, 'buttons', 'arrow' + fg)
+            .setScale(arrowScale)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .on('pointerup', () => {
+                if (colorIndex > colors.length - 1)
+                    colorIndex = 0
+                changeColor()
+            })
+        arrowRight.setX(20 * scx + mainText.x + mainText.getWidth())
 
         //HOMEBUTTON
-        homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + chosenColor)
+        homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
@@ -113,69 +142,65 @@ export default class MenuScene extends Phaser.Scene {
                 GameInfo.prevScene = this.scene.key
             })
         //PLAY BUTTON
-        if (chosenColor === 'white') {
+        if (fg === 'white') {
             borderColor = 'black'
         }
-        if (chosenColor === 'black') {
+        if (fg === 'black') {
             borderColor = 'white'
         }
 
-        playButton = this.add.sprite(playButtonX, playButtonY, 'buttons', 'playButton' + chosenColor)
+        playButton = this.add.sprite(playButtonX, playButtonY, 'buttons', 'playButton' + fg)
             .setScale(playButtonScale)
             .setOrigin(0, 0)
             .setInteractive()
             .on('pointerup', () => {
                 GameInfo.prevScene = this.scene.key
-                GameInfo.players.localPlayer = {color: chosenColor}
-                if (GameInfo.hasTutorial) {
+                GameInfo.players.localPlayer = {color: colors[colorIndex]}
+
+                if (GameInfo.mode === 'multi') {
                     Messenger.init(this)
-                } else {
-                    this.scene.switch('tutorScene')
+                } else if (GameInfo.mode === 'single') {
+                    this.scene.start('singleGameScene')
                     this.scene.sleep()
                 }
             })
         centerSpriteX(this, playButton)
 
 
-        ColorManager.getColors().forEach((c, i) => {
-            if (i % 3 === 0) {
-                rectX = firstRectX
-                rectY += scy * rectSize + margin
-            }
-            let r = this.add.sprite(rectX, rectY, 'buttons', 'color' + c)
-                .setScale(1.5 * scx)
-            r.color = c
-            r.setInteractive()
-            r.on('pointerup', () => {
-                chosenColor = r.color
-                changeColor(chosenColor)
-                playButton.setFrame('playButton' + chosenColor)
-                homeButton.setFrame('homeButton' + chosenColor)
-                mainText.flipColor(chosenColor)
-                platform.setFrame('dot' + chosenColor)
-                dude.play('duderun' + chosenColor)
-            })
-            rectX += scx * (margin + rectSize)
-        })
+        // ColorManager.getColors().forEach((c, i) => {
+        //     if (i % 3 === 0) {
+        //         rectX = firstRectX
+        //         rectY += scy * rectSize + margin
+        //     }
+        //     let r = this.add.sprite(rectX, rectY, 'buttons', 'color' + c)
+        //         .setScale(1.5 * scx)
+        //     r.color = c
+        //     r.setInteractive()
+        //     r.on('pointerup', () => {
+        //         fg = r.color
+        //         changeColor(fg)
+        //         playButton.setFrame('playButton' + fg)
+        //         homeButton.setFrame('homeButton' + fg)
+        //         mainText.flipColor(fg)
+        //         platform.setFrame('dot' + fg)
+        //         dude.play('duderun' + fg)
+        //     })
+        //     rectX += scx * (margin + rectSize)
+        // })
         GameInfo.prevScene = this.scene.key
-        GameInfo.players.localPlayer = {color: chosenColor}
-        Messenger.init(this)
 
     }
 
     update(t, delta) {
-
         time++
-        if (time > 250) {
-            time = 0
+        while (bg === colors[colorIndex]) {
+            bg = ColorManager.getRandomColor()
+        }
+        this.cameras.main.setBackgroundColor(bg)
+        if (time % 250 === 0) {
             let randomColor = ColorManager.getRandomColor()
-            while (randomColor === chosenColor) {
-                randomColor = ColorManager.getRandomColor()
-            }
-            console.log('random color', randomColor)
-            console.log('fg color', chosenColor)
             this.cameras.main.setBackgroundColor(randomColor)
-            backgroundColor = randomColor
+            bg = randomColor
         }
         if (window.innerWidth < window.innerHeight) {
             document.getElementById('rotateScreen').style.visibility = 'visible'
@@ -185,28 +210,14 @@ export default class MenuScene extends Phaser.Scene {
     }
 }
 
-function changeColor(chosenColor) {
-    if (chosenColor === 'rgb(255,255,255') {
-        borderColor = 'black'
-    }
-    if (chosenColor === 'rgb(0,0,0)') {
-        borderColor = 'white'
-    }
-    if (chosenColor === backgroundColor) {
-        backgroundColor = getRandomBg()
-        mainCamera.setBackgroundColor(backgroundColor)
-    }
-}
-
-function swipe() {
-
-}
-
-
-function getRandomBg(bg, ch) {
-    while (bg === ch) {
-        bg = ColorManager.getRandomColor()
-    }
-    return bg
+function changeColor() {
+    fg = colors[colorIndex]
+    playButton.setFrame('playButton' + fg)
+    homeButton.setFrame('homeButton' + fg)
+    arrowRight.setFrame('arrow' + fg)
+    arrowLeft.setFrame('arrow' + fg)
+    mainText.flipColor(fg)
+    platform.setFrame('dot' + fg)
+    dude.play('duderun' + fg)
 }
 

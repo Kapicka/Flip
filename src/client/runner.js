@@ -14,6 +14,8 @@ export default class Runner extends Phaser.Physics.Arcade.Sprite {
         this.lives = 3
         this.anim = 'jump'
         this.id = 'dude'
+        this.prev = {}
+        this.prev.anim = 'jump'
         this.prevY = y
         scene.physics.world.enableBody(this, 0)
         scene.add.existing(this)
@@ -21,19 +23,25 @@ export default class Runner extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+    playy() {
+
+        this.play()
+
+    }
+
     grounded() {
-        this.stat.grounded()
+        return this.stat.grounded()
     }
 
     jump() {
-        this.stat.jump()
+        return this.stat.jump()
     }
 
     shoot() {
     }
 
     duck() {
-        this.stat.duck()
+        return this.stat.duck()
     }
 
     switchColor() {

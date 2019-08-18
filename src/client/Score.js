@@ -24,8 +24,6 @@ export default class Score {
         let index = textLength
         for (let i = 0; i < textLength; i++) {
             let ch = text[textLength - i - 1]
-            console.log(this.maxSize - i - 1)
-            console.log('setting', ch)
             this.numbers[this.maxSize - i - 1]
                 .setFrame(ch + this.scene.foregroundColor)
             this.numbers[this.maxSize - i - 1].name = ch

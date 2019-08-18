@@ -26,7 +26,6 @@ export default class GameOverScene extends Phaser.Scene {
         let scx = Display.gamingArea.scaleX
         let scy = Display.gamingArea.scaleY
 
-        console.log(GameInfo)
         let fg = GameInfo.players.localPlayer.color//'rgb(255,255,255)'//GameInfo.players.localPlayer.color
         let bg = GameInfo.players.remotePlayer.color
         while (fg === bg) {
@@ -46,16 +45,23 @@ export default class GameOverScene extends Phaser.Scene {
 
         let homeButtonX = 30 * scy
         let homeButtonY = againButtonY
-        let homeButtonScale = 4 * scx
+        let homeButtonScale = 5 * scx
 
         let homeButton = this.add.sprite(homeButtonX, homeButtonY,
             'buttons', 'homeButton' + fg)
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
-                Messenger.socket.disconnect()
+                GameInfo.score = 0
+                GameInfo.level = 1
+                if (GameInfo.mode === 'multi') {
+                    Messenger.socket.disconnect()
+                    this.scene.stop('gameScene')
+                    this.scene.stop('dummyGameScene')
+                } else if (GameInfo.mode === 'multi') {
+                    this.scene.stop('singeGameScene')
+                }
                 this.scene.start('firstScene')
-                this.scene.stop('gameScene')
             })
 
         let scoreY = y + 155 * scy
@@ -66,20 +72,26 @@ export default class GameOverScene extends Phaser.Scene {
         let scoreText = new Textt(this, scoreTextX, scoreTextY, 'Score ' + GameInfo.score, fg, mainTextScale)
 
         let againButton = this.add.sprite(againButtonX, againButtonY, 'buttons', 'againButton' + fg)
-            .setScale(3 * scx)
+            .setScale(4 * scx)
             .setInteractive()
             .on('pointerup', () => {
-                console.log('click...')
-                Messenger.socket.disconnect()
-                let color = GameInfo.players.localPlayer.color
-                GameInfo.init(this)
-                GameInfo.players.localPlayer = {color: color}
-                Messenger.init(this)
+                GameInfo.score = 0
+                GameInfo.level = 1
+                if (GameInfo.mode === 'multi') {
+                    Messenger.socket.disconnect()
+                    Messenger.socket.disconnect()
+                    let color = GameInfo.players.localPlayer.color
+                    GameInfo.init(this)
+                    GameInfo.players.localPlayer = {color: color}
+                    Messenger.init(this)
+                } else if (GameInfo.mode === 'single') {
+                    this.scene.start('singleGameScene')
+                }
             })
         againButton.width = againButton.width * 3 * scx
         let buttonsWidth = againButton.width + homeButton.width + 20 * scx
-        againButton.setX(x + cx - buttonsWidth / 2)
-        homeButton.setX(againButton.x + againButton.width + 20 * scx)
+        againButton.setX(x + cx - buttonsWidth)
+        homeButton.setX(x + cx + buttonsWidth)
 
 
         scoreText.setX(this.cameras.main.width / 2 - mainText.getWidth() / 2)
@@ -87,10 +99,10 @@ export default class GameOverScene extends Phaser.Scene {
     }
 
     update(t, delta) {
-            if (window.innerWidth < window.innerHeight) {
-                document.getElementById('rotateScreen').style.visibility = 'visible'
-            } else {
-                document.getElementById('rotateScreen').style.visibility = 'hidden'
-            }
+        if (window.innerWidth < window.innerHeight) {
+            document.getElementById('rotateScreen').style.visibility = 'visible'
+        } else {
+            document.getElementById('rotateScreen').style.visibility = 'hidden'
+        }
     }
 }

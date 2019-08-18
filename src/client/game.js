@@ -4,7 +4,9 @@ import BootScene from './scenes/bootScene'
 import MenuScene from './scenes/menuScene'
 import WaitingScene from './scenes/waitingScene';
 import GameOverScene from './scenes/gameOverScene';
+import SingleGameScene from "./scenes/singleGameScene";
 import TutorScene from "./scenes/tutorScene";
+import TutorialScene from "./scenes/tutorialScene";
 import FirstScene from './scenes/firstScene';
 import Display from './display'
 import Phaser from 'phaser'
@@ -14,13 +16,13 @@ let scenes = []
 scenes.push(BootScene)
 scenes.push(FirstScene)
 scenes.push(MenuScene)
-scenes.push(TutorScene)
+scenes.push(TutorialScene)
 scenes.push(GameOverScene)
 scenes.push(GameScene)
+scenes.push(SingleGameScene)
 scenes.push(WaitingScene)
 scenes.push(DummyGameScene)
 scenes.push(PlayerDisconnectedScene)
-
 
 
 // var elem = document.body
@@ -62,9 +64,9 @@ const config = {
     type: Phaser.WEBGL,
     width: Display.width,
     height: Display.height,
-     // scale: {
-     //     mode: Phaser.Scale.FIT
-     // },
+    // scale: {
+    //     mode: Phaser.Scale.FIT
+    // },
 
     pixelArt: true,
     physics: {

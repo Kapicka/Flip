@@ -16,18 +16,17 @@ export default class DummyGameScene extends Phaser.Scene {
     }
 
     init() {
-        GameInfo.currentScene = this
         Controller.init(this)
         GameActions.init(this)
+        GameInfo.currentScene = this
     }
 
     preload() {
     }
 
     create() {
-
-        // this.add.receangle(0, 0, Display.gamingArea.width, Display.gamingArea.height, 'black').setOrigin(0, 0)
         Animations.init(this)
+        // this.add.receangle(0, 0, Display.gamingArea.width, Display.gamingArea.height, 'black').setOrigin(0, 0)
         this.foregroundColor = GameInfo.players.remotePlayer.color
         this.backgroundColor = GameInfo.players.localPlayer.color
 
@@ -55,7 +54,7 @@ export default class DummyGameScene extends Phaser.Scene {
         let fg = this.foregroundColor
 
         //DUDE POSITION
-        let dudeX = x + 20 * scx
+        let dudeX = x + 40 * scx
         let dudeY = 20 * scy
         let dudeScale = 4 * scx
 
@@ -93,8 +92,9 @@ export default class DummyGameScene extends Phaser.Scene {
         this.dude = this.add.sprite(dudeX, dudeY, 'dude_jump_0' + this.foregroundColor)
             .setOrigin(0, 0)
         this.dude.play('dudejump' + this.foregroundColor)
-        this.dude.anim = 'mp'
+        this.dude.anim = 'jump'
         this.dude.lives = 3
+
         this.dude.setScale(dudeScale)
         this.dude.character = 'dude'
         this.dude.id = 'dude'
@@ -113,14 +113,31 @@ export default class DummyGameScene extends Phaser.Scene {
         this.displaydScore = new Score(this, displayedScoreX - 100, displayedScoreY, displaydScoreSize)
         this.displaydScore.setScore(0)
         Messenger.initGameComunication()
+
+        this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update() {
-        Controller.handleInputSlave()
         if (window.innerWidth < window.innerHeight) {
             document.getElementById('rotateScreen').style.visibility = 'visible'
         } else {
             document.getElementById('rotateScreen').style.visibility = 'hidden'
         }
+        //Control dude
+        if (GameInfo.onTurn) {
+            let swipe = Controller.getSwipe()
+            if (this.cursors.down.isDown || swipe === 'down') {
+                switchTurn('duck')
+            }
+            if (this.cursors.up.isDown || swipe === 'up') {
+                switchTurn('jump')
+            }
+        }
     }
+}
+
+function switchTurn(action) {
+    GameInfo.onTurn = false
+    GameActions.flipColor()
+    Messenger.socket.emit('switchturn', action)
 }

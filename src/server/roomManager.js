@@ -6,6 +6,7 @@ function addRoom() {
     rooms.roomId = new Room(roomId, 2)
     roomId++
 }
+
 let RoomManager = {
     getRoom: function () {
         for (let id in rooms) {
@@ -14,12 +15,15 @@ let RoomManager = {
                 return rooms[id]
             }
         }
-        rooms.roomId = new Room(roomId, 2)
         roomId++
-        return rooms.roomId
+        rooms[roomId] = new Room(roomId, 2)
+        return rooms[roomId]
     },
     destroyRoom: function (id) {
         delete rooms[id]
+    },
+    getRooms() {
+        return rooms
     }
 }
 
