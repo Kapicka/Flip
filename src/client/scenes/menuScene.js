@@ -116,21 +116,23 @@ export default class MenuScene extends Phaser.Scene {
                 colorIndex--
                 if (colorIndex < 0)
                     colorIndex = colors.length - 1
+                console.log(colors[colorIndex])
                 changeColor()
             })
         arrowLeft.setX(mainText.x - 35 * scx - arrowLeft.width)
         // rectangle = this.add.sprite(chooseX, chooseY, 'buttons', 'color' + fg)
         //     .setScale(chooseScale)
-        arrowRight = this.add.sprite(0, chooseY, 'buttons', 'arrow' + fg)
+        arrowRight = this.add.sprite(30 + mainText.x + mainText.getWidth(), chooseY, 'buttons', 'arrow' + fg)
             .setScale(arrowScale)
             .setOrigin(0, 0)
             .setInteractive()
             .on('pointerup', () => {
+                colorIndex++
+                console.log(colors[colorIndex])
                 if (colorIndex > colors.length - 1)
                     colorIndex = 0
                 changeColor()
             })
-        arrowRight.setX(20 * scx + mainText.x + mainText.getWidth())
 
         //HOMEBUTTON
         homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
@@ -194,17 +196,19 @@ export default class MenuScene extends Phaser.Scene {
         time++
         while (bg === colors[colorIndex]) {
             bg = ColorManager.getRandomColor()
+            this.cameras.main.setBackgroundColor(bg)
         }
-        this.cameras.main.setBackgroundColor(bg)
         if (time % 250 === 0) {
             let randomColor = ColorManager.getRandomColor()
             this.cameras.main.setBackgroundColor(randomColor)
             bg = randomColor
         }
-        if (window.innerWidth < window.innerHeight) {
-            document.getElementById('rotateScreen').style.visibility = 'visible'
-        } else {
-            document.getElementById('rotateScreen').style.visibility = 'hidden'
+        if (Display.mobile) {
+            if (window.innerWidth < window.innerHeight) {
+                document.getElementById('rotateScreen').style.visibility = 'visible'
+            } else {
+                document.getElementById('rotateScreen').style.visibility = 'hidden'
+            }
         }
     }
 }

@@ -60,9 +60,9 @@ export default class DummyGameScene extends Phaser.Scene {
 
         //PLATFORM  POSITION
         let platformX = (x - w)
-        let platformY = h * (1 - (1 / 4))
         let platformWidth = (w * 3) * scx
         let platformHeight = 10 * scy
+        let platformY = (h * (1 - (1 / 4))) - platformHeight
         let platformscale = 3 * scx
 
         //DISPLAYED LIVES POSSITONS

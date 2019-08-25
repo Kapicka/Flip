@@ -14,6 +14,7 @@ const Display = {
             this.gamingArea.width = this.width
             this.gamingArea.height = this.height
             if (window.outerWidth < window.outerHeight) {
+                console.log('thats what im talking about')
                 this.width = window.outerHeight
                 this.height = window.outerWidth
                 this.gamingArea.width = this.width

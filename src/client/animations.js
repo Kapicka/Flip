@@ -36,6 +36,20 @@ const Animations = {
                     },
                 ]
             })
+            scene.anims.create({
+                key: 'dude' + 'hit' + b,
+                repeat: -1,
+                frameRate: 12,
+                frames: [{
+                    key: 'sprites',
+                    frame: 'dude_hit_0' + b
+                },
+                    {
+                        key: 'sprites',
+                        frame: 'dude_hit_1' + b
+                    },
+                ]
+            })
 
             scene.anims.create({
                 key: 'frog' + 'run' + b,

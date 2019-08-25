@@ -111,20 +111,18 @@ export default class SingleGameScene extends Phaser.Scene {
         })
         //platforms object and fallableObjects
         this.physics.add.collider(this.fallableObjects, this.platforms)
-        //dude  and enemies
-        this.physics.add.overlap(this.dude, this.enemies, (d, e) => {
-            if (this.lives.getChildren().length > 0) {
-                if (!e.passed) {
-                    e.flipY = true
-                    this.fallableObjects.remove(e)
-                    this.enemies.remove(e)
-                    d.lives--
-                    this.lives.getChildren().pop().destroy()
-                    e.passed = true
+
+        //DUDE AND ENEMIES
+        this.physics.add.overlap(this.dude, this.enemies, (dude, enemy) => {
+            if (dude.hit()) {
+                enemy.flipY = true
+                this.enemies.remove(enemy)
+                this.fallableObjects.remove(enemy)
+                this.lives.getChildren().pop().destroy()
+                if (this.lives.getChildren().length === 0) {
+                    GameInfo.currentScene.scene.start('gameOverScene', 'koko')
+                    GameInfo.currentScene.scene.stop('singleGameScene')
                 }
-            } else {
-                GameInfo.currentScene.scene.start('gameOverScene', 'koko')
-                GameInfo.currentScene.scene.stop('singleGameScene')
             }
         })
 

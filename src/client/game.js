@@ -58,16 +58,22 @@ Display.init(canvasWidth, canvasHeight)
 
 let gravity = Display.scaleY * 400
 
+let scaleOption = Phaser.Scale.FIT
+if (Display.mobile) {
+    scaleOption = Phaser.Scale.NONE
+}
+console.log(scaleOption)
 
 let zoom = 1
+console.log('width' + Display.width)
+console.log('height' + Display.height)
 const config = {
     type: Phaser.WEBGL,
     width: Display.width,
     height: Display.height,
-    // scale: {
-    //     mode: Phaser.Scale.FIT
-    // },
-
+    scale: {
+        mode: Phaser.Scale.FIT
+    },
     pixelArt: true,
     physics: {
         default: 'arcade',
@@ -80,6 +86,3 @@ const config = {
 }
 
 let game = new Phaser.Game(config)
-export default game
-
-

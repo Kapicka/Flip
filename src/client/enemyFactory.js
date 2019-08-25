@@ -21,7 +21,7 @@ const EnemyFactory = {
             let rightSideX = leftSideX + sceneWidth
             let enemyNumber = Math.floor(Math.random() * level + 1)
             if (enemyNumber === 0) enemyNumber++
-            let velocity = this.velocity// level * 200 * Display.scaleX //mělo by to tak být...
+            let velocity = this.velocity
             let direction = GameInfo.direction
             let cameraY = scene.cameras.main.y
             let x = Display.gamingArea.width
@@ -72,7 +72,6 @@ const EnemyFactory = {
             scene.movableObjects.add(enemy)
             enemy.setScale(enemyScale)
             enemy.setFlipX(flip)
-            enemy.passed = false
             enemy.id = 'enemy' + nextId
             nextId++
             enemy.character = character

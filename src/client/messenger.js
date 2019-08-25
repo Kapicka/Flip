@@ -77,6 +77,7 @@ const Messenger = {
         })
 
         this.socket.on('doomed', (enemyId) => {
+            GameInfo.currentScene.dude.play('dudehit' + GameInfo.currentScene.foregroundColor)
             GameInfo.currentScene.lives.getChildren().pop().destroy()
             GameInfo.currentScene.movableObjects.getChildren().forEach(e => {
                 if (e.id === enemyId) {

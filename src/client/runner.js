@@ -23,27 +23,20 @@ export default class Runner extends Phaser.Physics.Arcade.Sprite {
 
     }
 
-    playy() {
-
-        this.play()
-
-    }
-
     grounded() {
         return this.stat.grounded()
     }
-
+    hit() {
+        return this.stat.hit()
+    }
     jump() {
         return this.stat.jump()
     }
-
     shoot() {
     }
-
     duck() {
         return this.stat.duck()
     }
-
     switchColor() {
         this.play(this.character + this.anim + this.scene.foregroundColor)
     }

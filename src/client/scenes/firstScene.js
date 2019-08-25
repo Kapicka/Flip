@@ -87,7 +87,7 @@ export default class FirstScene extends Phaser.Scene {
             })
         //DUDE
         this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run_1rgb(255,255,255)')
-            .play('dudejumprgb(255,255,255)')
+            .play('duderunrgb(255,255,255)')
             .setScale(5)
             .setInteractive()
 
@@ -99,10 +99,12 @@ export default class FirstScene extends Phaser.Scene {
     }
 
     update(t, delta) {
-        if (window.innerWidth < window.innerHeight) {
-            document.getElementById('rotateScreen').style.visibility = 'visible'
-        } else {
-            document.getElementById('rotateScreen').style.visibility = 'hidden'
+        if (Display.mobile) {
+            if (window.innerWidth < window.innerHeight) {
+                document.getElementById('rotateScreen').style.visibility = 'visible'
+            } else {
+                document.getElementById('rotateScreen').style.visibility = 'hidden'
+            }
         }
         this.time++
         if (this.time > 900) {

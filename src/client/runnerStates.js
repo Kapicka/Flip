@@ -5,8 +5,6 @@ import GameInfo from "./gameInfo";
 const runnerStates = {
     states: {},
     init: function (runner, scene) {
-        console.log('runner na zacatku', runner)
-
         function jump() {
             runner.stat = runner.states['jumpingState']
             runner.prev.anim = runner.anim
@@ -17,6 +15,24 @@ const runnerStates = {
             if (GameInfo.mode === 'multi') {
                 Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
             }
+            return true
+        }
+
+        function hit() {
+            runner.prev.anim = runner.anim
+            runner.anim = 'hit'
+            runner.stat = runner.states['hitState']
+            runner.lives--
+            runner.play('dudehit' + scene.foregroundColor)
+            scene.time.delayedCall(2500, () => {
+                runner.prev.anim = runner.anim
+                runner.anim = 'run'
+                runner.stat = runner.states['runningState']
+                runner.play('dude' + runner.anim + scene.foregroundColor)
+                if (GameInfo.mode === 'multi') {
+                    Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
+                }
+            });
             return true
         }
 
@@ -32,9 +48,7 @@ const runnerStates = {
             runner.play(anim)
             runner.stat = runner.states['runningState']
             if (GameInfo.mode === 'multi') {
-                if (GameInfo.mode === 'multi') {
-                    Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
-                }
+                Messenger.socket.emit('animchanged', {id: runner.id, anim: runner.anim})
             }
             return true
         }
@@ -45,11 +59,15 @@ const runnerStates = {
 
 //RUNNING STATE
         this.states.runningState = {
-            duck: emptyf, run: emptyf, grounded: emptyf, jump
+            duck: emptyf, run: emptyf, grounded: emptyf, jump, hit
+        }
+//HIT STATE
+        this.states.hitState = {
+            duck: emptyf, run: emptyf, grounded: emptyf, jump: emptyf, hit: emptyf
         }
 //Sliding state
         this.states.slidingState = {
-            duck: emptyf, run: emptyf, grounded: emptyf, jump
+            duck: emptyf, run: emptyf, grounded: emptyf, jump, hit
         }
 //JUMPING STATE
         this.states.jumpingState = {
@@ -64,7 +82,8 @@ const runnerStates = {
                 }
                 return true
             },
-            grounded: run
+            grounded: run,
+            hit
         }
         this.states.jumpingAndDucking = {
             jump: emptyf, duck: emptyf, grounded: run
@@ -73,8 +92,6 @@ const runnerStates = {
             return this.states
         }
     }
-
 }
-
 
 export default runnerStates

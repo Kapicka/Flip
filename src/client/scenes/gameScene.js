@@ -58,9 +58,9 @@ export default class GameScene extends Phaser.Scene {
 
         //PLATFORM  POSITION
         let platformX = (x - w)
-        let platformY = h * (1 - (1 / 4))
         let platformWidth = (w * 3) * scx
         let platformHeight = 10 * scy
+        let platformY = (h * (1 - (1 / 4))) - platformHeight
         let platformscale = 3 * scx
 
         //DISPLAYED LIVES POSSITONS
@@ -113,28 +113,31 @@ export default class GameScene extends Phaser.Scene {
         //platforms object and fallableObjects
         this.physics.add.collider(this.fallableObjects, this.platforms)
         //dude  and enemies
-        this.physics.add.overlap(this.dude, this.enemies, (d, e) => {
-            if (this.lives.getChildren().length > 0) {
-                if (!e.passed) {
-                    e.flipY = true
-                    this.fallableObjects.remove(e)
-                    this.enemies.remove(e)
-                    Messenger.socket.emit('doomed', e.id)
-                    d.lives--
-                    this.lives.getChildren().pop().destroy()
-                    e.passed = true
+
+
+        this.physics.add.overlap(this.dude, this.enemies, (dude, enemy) => {
+            console.log(dude.stat)
+            if (dude.hit()) {
+                enemy.flipY = true
+                this.enemies.remove(enemy)
+                this.fallableObjects.remove(enemy)
+                this.lives.getChildren().pop().destroy()
+                Messenger.socket.emit('doomed', enemy.id)
+                if (this.lives.getChildren().length === 0) {
+                    Messenger.socket.emit('gameover')
+                    Messenger.socket.disconnect()
+                    GameInfo.currentScene.scene.start('gameOverScene', 'koko')
+                    GameInfo.currentScene.scene.stop('singleGameScene')
                 }
-            } else {
-                Messenger.socket.emit('gameover')
-                Messenger.socket.disconnect()
-                GameInfo.currentScene.scene.start('gameOverScene', 'koko')
-                GameInfo.currentScene.scene.stop('gameScene')
             }
         })
+
+
         Messenger.initGameComunication()
 
         this.cursors = this.input.keyboard.createCursorKeys();
     }
+
     update() {
         this.jumpingAnimals.getChildren().forEach(e => {
                 let vel = e.body.velocity.y
@@ -236,7 +239,7 @@ function scoreUp(scene, e) {
     if (GameInfo.passedEnemies > 2 * GameInfo.level) {
         GameInfo.passedEnemies = 0
         GameInfo.levelUp()
-        EnemyFactory.velocity *=1.1
+        EnemyFactory.velocity *= 1.1
     }
 }
 

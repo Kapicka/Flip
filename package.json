@@ -8,7 +8,7 @@
   "main": "src/client/game.js",
   "scripts": {
     "start": "cd src/server/;node server.js",
-    "build": "rm -rf ./dist/*;parcel build src/client/index.html --out-dir ./prod/dist/;cp -rf ./src/server/ ./prod",
+    "build": "parcel build src/client/index.html --out-dir ./prod/dist/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
