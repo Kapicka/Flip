@@ -1,93 +1,133 @@
 import Display from './display'
-import Messenger from './messenger'
-import GameInfo from "./gameInfo";
+import GameSprite from "./gameSprites/gameSprite";
+import EventEmmiter from 'events'
+import JumpingEnemy from "./gameSprites/jumpingEnemy";
+import FlyingEnemy from "./gameSprites/flyingEnemy";
+import Messenger from "./messenger"
+import { debuglog } from 'util';
+let runningEnemies = ['deamon', 'duck', 'shaolin', 'pig', 'dog']
+let jumpingEnemies = ['frog']
+let flyingEnemies = ['bird']
+let enemyTypes = { running: runningEnemies, jumping: jumpingEnemies, flying: flyingEnemies }
+let enemyScale = 5.3 * Display.scaleX
+let prevType = 0
+let id = 0
+// .map(enemy => enemy.x * Display.scaleX)
+// .map(enemy => enemy.x * Display.scale)
 
-let nextId = 0
-const EnemyFactory = {
-    init: function (scene) {
-        this.runningEnemies = ['deamon', 'duck', 'shaolin', 'pig', 'dog']
-        this.jumpingEnemies = ['frog']
-        this.flyingEnemies = ['bird']
-        this.platformTypes = ['gapPlatform', 'bigPlatform']
-        this.velocity = 150
+export default class EnemyFactory extends EventEmmiter {
+    constructor(scene) {
+        super()
+        let enemyScale = 5 * Display.scaleX
+        let scx = Display.scaleX
+        let scy = Display.scaleY
+        let w = Display.width
 
 
-        this.createEnemy = (level) => {
-            let sceneWidth = scene.cameras.main.width
-            let leftSideX = scene.cameras.main.x
-            let scx = Display.gamingArea.scaleX
-            let scy = Display.gamingArea.scaleY
-            let enemyScale = 5 * scx
-            let rightSideX = leftSideX + sceneWidth
-            let enemyNumber = Math.floor(Math.random() * level + 1)
-            if (enemyNumber === 0) enemyNumber++
-            let velocity = this.velocity
-            let direction = GameInfo.direction
-            let cameraY = scene.cameras.main.y
-            let x = Display.gamingArea.width
-            let y = 15 * Display.gamingArea.scaleY
+        this.createFromList = (enemies) => {
+            enemies.forEach(e => {
+                let enemy = new GameSprite(scene, e.x * scx + w, e.y * scy, e.character, 'run', false)
+                enemy.id = e.id
+                enemy.setScale(enemyScale)
+                enemy.setAnim('run')
+                scene.gameObjects.add(enemy)
+                scene.movableObjects.add(enemy)
+            })
+        }
 
-            let characterNumber = undefined
+
+        this.createFromListPhysics = (enemies, velocity) => {
+            enemies = enemies.map(e => {
+                let characters = enemyTypes[e.type]
+                e.character = getRandomCharacter(characters)
+                e.id = getId()
+                return e
+            })
+
+            this.emit('enemyinfomulti', enemies)
+            enemies.forEach(e => {
+                let x = e.x * scx + w
+                let y = e.y * scy
+                let enemy
+                if (e.type === 'running') {
+                    enemy = new GameSprite(scene, x, y, e.character, 'run', true)
+                    scene.platformers.add(enemy)
+                }
+                if (e.type === 'jumping') {
+                    enemy = new JumpingEnemy(scene, x, y, e.character, scene.platforms)
+                }
+                if (e.type === 'flying') {
+                    enemy = new FlyingEnemy(scene, x, y, e.character, 500)
+                }
+                enemy.id = e.id
+                scene.enemies.add(enemy)
+                scene.gameObjects.add(enemy)
+                scene.movableObjects.add(enemy)
+                enemy.setScale(enemyScale)
+                    .setVelocityX(velocity)
+                    .setAnim(enemy.anim)
+                this.emit('enemycreated', enemy)
+            })
+
+        }
+
+        this.createRandomEnemy = function (velocity) {
+            let enemyTypeNumber = getRandomType()
+            let character = getRandomCharacter(enemyTypes[enemyTypeNumber])
+            let x = Display.width * Display.gamingArea.scaleX
+            let y = Display.height / 2 * Display.gamingArea.scaleY
             let enemy = undefined
-            let character
-            let flip = true
-            if (direction === 'left') {
-                velocity *= -1
-                x = rightSideX
-                flip = false
+
+
+            let enemyScale = 5 * Display.scaleX
+            if (enemyTypeNumber === 0) {
+                enemy = new GameSprite(scene, x, y, character, 'run', true)
+                scene.platformers.add(enemy)
+                enemyScale = enemyScale + 1
             }
-            switch (enemyNumber) {
-                case 1:
-                    characterNumber = Math.floor(Math.random() * this.runningEnemies.length)
-                    character = this.runningEnemies[characterNumber]
-                    enemy = scene.physics.add.sprite(x, 90 * scy, 'sprites', character + '_run_0' + scene.foregroundColor)
-                        .setVelocityX(velocity)
-                    scene.fallableObjects.add(enemy)
-                    break;
-                case 2:
-                    characterNumber = Math.floor(Math.random() * this.jumpingEnemies.length)
-                    character = this.jumpingEnemies[characterNumber]
-                    enemy = scene.physics.add.sprite(x, y, 'sprites', character + '_run_0' + scene.foregroundColor)
-                        .setVelocityX(velocity / 2)
-                    scene.physics.add.overlap(enemy, scene.platforms,
-                        (e, p) => {
-                            e.play('frog' + 'run' + scene.foregroundColor)
-                            e.setVelocityY(-250 * scy)
-                            e.play('frog' + 'jump' + scene.foregroundColor)
-                        })
-                    scene.jumpingAnimals.add(enemy)
-                    break;
-                case 3:
-                    characterNumber = Math.floor(Math.random() * this.flyingEnemies.length)
-                    character = this.flyingEnemies[characterNumber]
-                    enemy = scene.physics.add.sprite(x, y + 30 * scy, 'sprites', character + '_run_0' + scene.foregroundColor)
-                        .setVelocityX(velocity / 3)
-                    scene.game.events.on('step', (time, delta) => {
-                        enemy.setY(80 * scy + (Math.sin(time / 400) * 55 * scy))
-                    })
-                    break;
-            }
+            if (enemyTypeNumber === 1)
+                enemy = new JumpingEnemy(scene, x, y, character, scene.platforms)
+            if (enemyTypeNumber === 2)
+                enemy = new FlyingEnemy(scene, x, y, character, 500)
+
+
+            enemy.id = getId()
             scene.enemies.add(enemy)
             scene.gameObjects.add(enemy)
             scene.movableObjects.add(enemy)
             enemy.setScale(enemyScale)
-            enemy.setFlipX(flip)
-            enemy.id = 'enemy' + nextId
-            nextId++
-            enemy.character = character
-            enemy.anim = 'run'
-            enemy.play(character + enemy.anim + scene.foregroundColor)
+                .setVelocity(velocity)
+                .setAnim(enemy.anim)
+            this.emit('enemycreated', enemy)
+        }
 
-            if (GameInfo.mode === 'multi') {
-                Messenger.socket.emit('enemycreated', {
-                    id: enemy.id,
-                    character: enemy.character,
-                    x: enemy.x,
-                    y: enemy.y
-                })
-            }
+
+        this.createEnemy = function (id, x, y, character, anim, scale, body) {
+            let enemy = new GameSprite(scene, x, y, character, anim, body)
+            enemy.id = id
+            enemy.setScale(scale)
             return enemy
         }
+
     }
 }
-export default EnemyFactory
+function getRandomCharacter(characters) {
+    let characterNumber = Math.floor(Math.random() * characters.length)
+    return characters[characterNumber]
+}
+
+function getRandomType() {
+    let characterTypeNumber = Math.floor(Math.random() * enemyTypes.length)
+    while (characterTypeNumber === prevType) {
+        characterTypeNumber = Math.floor(Math.random() * enemyTypes.length)
+    }
+    prevType = characterTypeNumber
+    return characterTypeNumber
+}
+
+function getId() {
+    id++
+    return id
+}
+
+

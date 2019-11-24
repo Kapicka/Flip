@@ -1,208 +1,162 @@
-import Animations from '../animations'
-import Score from '../Score'
-import EnemyFactory from '../enemyFactory'
 import EnemyGenerator from '../enemyGenerator'
-import PlatformFactory from '../platformFactory'
-import Runner from '../runner'
+import EnemyFactory from "../enemyFactory";
+import Runner from '../gameSprites/runner'
 import GameInfo from '../gameInfo'
-import GameActions from '../gameActions'
-import Display from '../display'
-import Controller from '../controller'
-import ColorManager from "../ColorManager";
+import Lives from '../lives'
+import Score from '../score'
+import Messenger from '../messenger'
+import SwipeController from '../swipeController'
+import ColorManager from "../colorManager";
+import { getGameScenePositions } from "../positions";
+import FlyingEnemy from '../gameSprites/flyingEnemy';
 
-let pos = 0
-let isDown = false
-export default class SingleGameScene extends Phaser.Scene {
+
+export default class GameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'singleGameScene'})
+        super({ key: 'singleGameScene' })
     }
-
-    init() {
-        GameInfo.currentScene = this
-        EnemyFactory.init(this)
-        EnemyGenerator.init(this)
-        PlatformFactory.init(this)
-        GameActions.init(this)
-        Controller.init(this)
-    }
-
 
     create() {
-        Animations.init(this)
+        const p = getGameScenePositions(this)
+        this.enemyFactory = new EnemyFactory(this)
+        this.enemyGenerator = new EnemyGenerator(this)
+        this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
-        this.backgroundColor = ColorManager.getRandomColor()
-        while (this.foregroundColor === this.backgroundColor) {
-            this.backgroundColor = ColorManager.getRandomColor()
-        }
-        GameInfo.players.remotePlayer.color = this.backgroundColor
-
+        this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 
 
-        //STARTING POSITIONS
-        let w = Display.gamingArea.width
-        let h = Display.gamingArea.height
-        let cx = w / 2
-        let cy = h / 2
-        let x = this.cameras.main.x + ((Display.width - w))
-        let y = this.cameras.main.y
-        let scx = Display.gamingArea.scaleX
-        let scy = Display.gamingArea.scaleY
-        let fg = this.foregroundColor
-
-        //DUDE POSITION
-        let dudeX = x + 40 * scx
-        let dudeY = 20 * scy
-        let dudeScale = 4 * scx
-
-        //PLATFORM  POSITION
-        let platformX = (x - w)
-        let platformY = h * (1 - (1 / 4))
-        let platformWidth = (w * 3) * scx
-        let platformHeight = 10 * scy
-        let platformscale = 3 * scx
-
-        //DISPLAYED LIVES POSSITONS
-        let liveMarginLeft = 25 * scx
-        let liveX = 30 * scx
-        let liveY = 30 * scx
-        let liveScale = 3 * scx
-
-        //SCORE POSITON
-        let displayedScoreX = x + w - (liveScale * 15)
-        let displayedScoreY = liveY
-        let displaydScoreSize = 3 * scx
-
         //GROUPS
-        this.jumpingAnimals = this.add.group()
-        this.lives = this.add.group()
         this.enemies = this.add.group()
-        this.bullets = this.physics.add.group()
         this.platforms = this.physics.add.staticGroup()
-        this.gameObjects = this.add.group()
         this.movableObjects = this.add.group()
-        this.fallableObjects = this.add.group()
+        this.gameObjects = this.add.group()
+        this.platformers = this.add.group()
 
 
-        // PLATFORMS
-        let p = this.platforms.create(platformX, platformY, 'sprites', 'dot' + fg)
-            .setOrigin(0, 0)
-            .setScale(platformWidth, platformHeight)
-            .refreshBody()
-        // DUDE
-        this.dude = new Runner(this, dudeX, dudeY, 'dude')
-            .setScale(dudeScale).setOrigin(0, 0)
-
-        liveMarginLeft = 0
-        for (let i = 0; i < this.dude.lives; i++) {
-            let l = this.lives.create(liveX + liveMarginLeft, liveY, 'sprites', 'live' +
-                fg).setScale(liveScale)
-            liveMarginLeft += l.width * liveScale + scx
-            l.key = 'live'
-        }
-        //DISPLAYED SCORE
-        this.displaydScore = new Score(this, displayedScoreX - 100, displayedScoreY, displaydScoreSize)
-        this.displaydScore.setScore(0)
-
-        //COLLIDERS AND OVERLAPS
-        //platforms and dude
-        this.physics.add.collider(this.platforms, this.dude, (p, d) => {
-            p.grounded()
-        })
-        //platforms object and fallableObjects
-        this.physics.add.collider(this.fallableObjects, this.platforms)
-
-        //DUDE AND ENEMIES
-        this.physics.add.overlap(this.dude, this.enemies, (dude, enemy) => {
-            if (dude.hit()) {
-                enemy.flipY = true
-                this.enemies.remove(enemy)
-                this.fallableObjects.remove(enemy)
-                this.lives.getChildren().pop().destroy()
-                if (this.lives.getChildren().length === 0) {
-                    GameInfo.currentScene.scene.start('gameOverScene', 'koko')
-                    GameInfo.currentScene.scene.stop('singleGameScene')
-                }
-            }
-        })
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-    }
-
-
-    update() {
-        this.jumpingAnimals.getChildren().forEach(e => {
-                let vel = e.body.velocity.y
-                if (vel > 0 && e.anim != 'run') {
-                    e.anim = 'run'
-                    e.play(e.character + e.anim + this.foregroundColor)
-                } else if (vel < 0 && e.anim != 'jump') {
-                    e.anim = 'jump'
-                    e.play(e.character + e.anim + this.foregroundColor)
-                }
-            }
+        this.platform = this.platforms.create(
+            p.platformX,
+            p.platformY,
+            'sprites',
+            'dot' + this.foregroundColor
         )
 
-        if (window.innerWidth < window.innerHeight) {
-            document.getElementById('rotateScreen').style.visibility = 'visible'
-        } else {
-            document.getElementById('rotateScreen').style.visibility = 'hidden'
+        this.platform.setOrigin(0, 0)
+            .setScale(p.platformWidth, p.platformHeight)
+            .refreshBody()
+
+        this.platform.flipColor = function (color) {
+            this.setFrame('dot' + color)
+        }
+        this.gameObjects.add(this.platform)
+
+
+        //RUNNER
+        this.runner = new Runner(this, p.dudeX, p.dudeY, 'jumpingState', true)
+            .setScale(p.dudeScale)
+            .setAnim('jump')
+        this.runner.body.updateBounds()
+        this.gameObjects.add(this.runner)
+        this.movableObjects.add(this.runner)
+
+
+
+
+
+        this.runner.on('hit', () => this.lives.removeLive())
+
+        this.runner.on('killed', () => {
+            console.log('this is single game scene vole');
+            console.log('this je ', this, 'papousku');
+            this.scene.start('gameOverScene')
+            this.scene.stop('singleGameScene')
+        })
+
+
+        //LIVES
+        this.lives = new Lives(
+            this,
+            p.liveX,
+            p.liveY,
+            this.runner.lives,
+            'sprites',
+            'live',
+            this.foregroundColor)
+        this.lives.id = 'lives'
+
+
+        //DISPLAYED SCORE
+        this.displayedScore = new Score(
+            this,
+            p.displayedScoreX - 100,
+            p.displayedScoreY,
+            p.displayedScoreSize,
+            this.foregroundColor
+        )
+
+
+
+        //COLLIDERS AND OVERLAPS
+        this.runnerCollider = this.physics.add.collider(this.platforms, this.runner,
+            (runner, platforms) => runner.run())
+
+
+        this.physics.add.collider(this.platformers, this.platforms)
+        this.physics.add.overlap(this.runner, this.enemies, (dude, enemy) => {
+            dude.hit()
+            this.enemies.remove(enemy)
+            this.platformers.remove(enemy)
+            enemy.flipY = true
+        })
+
+
+        this.flipColor = function () {
+            let temp = this.backgroundColor
+            this.backgroundColor = this.foregroundColor
+            this.foregroundColor = temp
+
+            this.gameObjects
+                .getChildren()
+                .forEach(go => go.flipColor(this.foregroundColor))
+            this.displayedScore.flipColor(this.foregroundColor)
+            this.lives.flipColor(this.foregroundColor)
+
+            this.cameras.main.setBackgroundColor(this.backgroundColor)
         }
 
-        EnemyGenerator.generateEnemy()
 
-        let CWidth = Display.width
-        let movableObjectsPos = {}
-
-
-        let swipe = Controller.getSwipe()
-        if (this.cursors.down.isDown || swipe === 'down') {
-            this.dude.duck()
-        }
-        if (this.cursors.up.isDown || swipe === 'up') {
-            this.dude.jump()
+        this.action = (action) => {
+            if (action === 'jump') { this.runner.jump() }
+            if (action === 'slide') { this.runner.slide() }
         }
 
 
+        this.input.keyboard.on('keydown-A', () => {
+            this.enemyFactory.createRandomEnemy(-10)
+
+        })
+        this.input.keyboard.on('keydown-A', () => { this.enemyFactory.createRandomEnemy(-200) })
+        this.input.keyboard.on('keydown-UP', () => this.action('jump'))
+        this.input.keyboard.on('keydown-DOWN', () => this.action('slide'))
+        this.swipeController.on('up', () => this.action('jump'))
+        this.swipeController.on('down', () => this.action('slide'))
+        this.input.keyboard.on('keydown-J', () => this.action('slide'))
+        this.input.keyboard.on('keydown-K', () => this.action('jump'))
+    }
+
+    update() {
+        this.enemyGenerator.generateEnemy()
         this.enemies.getChildren().forEach((e, i) => {
-            let direction = GameInfo.direction
-            if (direction === 'left') {
-                if (e.x < this.dude.x && !e.passed) {
-                    scoreUp(this, e)
-                }
-                if (e.x < 0) {
-                    destroyEnemy(e)
-                }
+            if (e.x < this.runner.x && this.runner.currentState.name !== 'hitState') {
+                this.enemies.remove(e).passed = true
+                GameInfo.score++
+                this.displayedScore.setScore(GameInfo.score)
+
             }
-            if (direction === 'right') {
-                if (e.x > this.dude.x && !e.passed) {
-                    scoreUp(this, e)
-                }
-                if (e.x > CWidth) {
-                    destroyEnemy(e)
-                }
+            if (e.x < 0) {
+                e.destroy()
             }
         })
+
     }
 }
-
-function destroyEnemy(e) {
-    e.destroy()
-}
-
-function scoreUp(scene, e) {
-    let scx = Display.scaleX
-    let scy = Display.scaleY
-
-    e.passed = true
-    GameInfo.score++
-    GameInfo.passedEnemies++
-    scene.displaydScore.setScore(GameInfo.score)
-
-    if (GameInfo.passedEnemies > 2 * GameInfo.level) {
-        GameInfo.passedEnemies = 0
-        GameInfo.levelUp()
-        EnemyFactory.velocity *= 1.5
-    }
-}
-

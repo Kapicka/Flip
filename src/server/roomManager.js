@@ -1,26 +1,23 @@
-let rooms = {}
-let roomId = 0
-const Room = require('./room')
 
-function addRoom() {
-    rooms.roomId = new Room(roomId, 2)
-    roomId++
-}
+const db = require('./db')
+let rooms = []
+const Room = require('./room')
 
 let RoomManager = {
     getRoom: function () {
-        for (let id in rooms) {
-            if (!rooms[id].full) {
-                rooms[id].full = true
-                return rooms[id]
-            }
+        let room = rooms.find(room => !room.full)
+        if (room !== undefined) {
+            console.log('there is a free space for you')
+            return room
         }
-        roomId++
-        rooms[roomId] = new Room(roomId, 2)
-        return rooms[roomId]
+        let id = db.getId()
+        console.log('hello this is the brand new room id', id)
+        room = new Room(id, 2)
+        rooms.push(room)
+        return room
     },
     destroyRoom: function (id) {
-        delete rooms[id]
+        rooms = rooms.filter(room => room.id !== id)
     },
     getRooms() {
         return rooms

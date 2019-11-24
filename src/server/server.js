@@ -1,94 +1,82 @@
-//const io = require('socket.io')()
-const RoomManager = require('./roomManager')
 const express = require('express')
+const initMessenger = require('./messengerServer')
 const Bundler = require('parcel-bundler')
 const app = express()
 const server = require('http').Server(app)
-const io = require('socket.io')(server, {serveClient: false})
-const file = '../client/index.html'
+const db = require('./db')
+const cors = require('cors')
 const option = {}
+const file = '../client/index.html'
 const bundler = new Bundler(file, option)
-server.listen(8081, function () {
-    console.log("server na trati")
+const port = process.env.PORT || 8081
+
+app.use(cors())
+app.use(express.json())
+
+app.get('/scores/single/', (req, res) => {
+    db.single.getGames()
+        .then(games => res.json(games))
+        .catch(err => console.error(err))
 })
-app.use(bundler.middleware());
-// app.use('/', express.static('./dist/'))
-io.on('connection', socket => {
-    socket.emit('handshake', socket.id)
+app.get('/test/', (req, res) => {
+    res.json({ "ok": "OK" })
+})
+app.get('/scores/multi/', (req, res) => {
+    db.multi.getGames()
+        .then(games => res.send(games).end())
+        .catch(err => console.error(err))
+})
+app.get('/scores/multi/rank/:score', (req, res) => {
+    db.multi.getBestThreeGames()
+        .then(games => {
+            let ret = games
+                .filter(g => g.score > req.params.score)
+            res.send(ret).end()
+        })
+        .catch(err => console.error(err))
+})
+app.get('/scores/single/rank/:score', (req, res) => {
+    db.single.getBestThreeGames()
+        .then(games => {
+            let ret = games
+                .filter(g => g.score > req.params.score)
+            res.send(ret).end()
+        })
+        .catch(err => console.error(err))
+})
+app.post('/scores/single/', (req, res) => {
+    const game = { score: req.body.score, players: [req.body.player] }
+    db.single.insertGame(game)
+        .then(id => {
+            res.json({ "id": id })
+        })
+        .catch(err => { throw err })
+})
 
-    socket.on('playerInfo', (player) => {
-        let room = RoomManager.getRoom()
-        room.addPlayer(socket.id, player)
-        socket.join(room.id)
-        console.log('user joined room ' + room.id)
-
-        if (room.full) {
-            console.log('Go!')
-            io.to(room.id).emit('playersInfo', room.players)
-            io.to(room.id).emit('startgame', {})
-        } else {
-            console.log('servrer: first player connected')
-
-            socket.emit('firstplayer', {})
-        }
-
-        socket.on('animchanged', (animInfo) => {
-            socket.to(room.id).emit('animchanged', animInfo)
-        })
-        socket.on('gameover', () => {
-            socket.to(room.id).emit('gameover')
-            RoomManager.destroyRoom(room.id)
-        })
-        socket.on('gamePaused', () => {
-            socket.to(room.id).emit('gamePaused')
-        })
-        socket.on('gameResumed', () => {
-            socket.to(room.id).emit('gameResumed')
-        })
-        socket.on('scoreup', () => {
-            socket.to(room.id).emit('scoreup')
-        })
-        socket.on('enemycreated', (enemy) => {
-            socket.to(room.id).emit('enemycreated', enemy)
-        })
-        socket.on('enemycoords', (enemycoords) => {
-            socket.to(room.id).emit('enemycoords', enemycoords)
-        })
-        socket.on('enemydestroyd', id => {
-            socket.to(room.id).emit('enemydestroyd', id)
-        })
-        socket.on('doomed', (enemyId) => {
-            socket.to(room.id).emit('doomed', enemyId)
-        })
-        socket.on('jump', (enemyId) => {
-            socket.to(room.id).emit('doomed', 'jump')
-        })
-        socket.on('duck', (enemyId) => {
-            socket.to(room.id).emit('doomed', 'duck')
-        })
-        socket.on('shoot', (enemyId) => {
-            socket.to(room.id).emit('doomed', 'shoot')
-        })
-
-        socket.on('gameover', () => {
-            socket.to(room.id).emit('gameover')
-        })
-
-        socket.on('dudemoved', (cords) => {
-            socket.to(room.id).emit('dudemoved', cords)
-        })
-        socket.on('disconnect', () => {
-            socket.to(room.id).emit('leave', socket.id)
-            if (RoomManager.destroyRoom(room.id)) {
-                console.log('Room ' + room.id + 'destroyd')
+app.post('/scores/multi/', (req, res) => {
+    const id = req.body.id
+    const player = req.body.player
+    const score = req.body.score
+    console.log('id: ', id, ' player: ', player, ' score: ', score)
+    db.multi.gameExist(id)
+        .then(exist => {
+            if (exist) {
+                return db.multi.addPlayer(id, player)
             }
-
+            const game = { "_id": id, "score": score, "players": [player,] }
+            return db.multi.insertGame(game)
         })
-        socket.on('switchturn', (action) => {
-            socket.to(room.id).emit('switchturn', action)
-        })
-
-
-    })
+        .then(id => res
+            .json({ "id": id })
+            .end())
+        .catch(err => { throw err })
 })
+
+server.listen(port, () => {
+    console.log('server is listenning on port ' + port)
+})
+
+app.use(bundler.middleware());
+initMessenger(server)
+
 

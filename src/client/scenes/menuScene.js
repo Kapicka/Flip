@@ -1,35 +1,27 @@
-import Animations from '../animations'
-import ColorManager from '../ColorManager'
-import Messenger from '../messenger'
+
+import ColorManager from '../colorManager'
 import Display from '../display';
 import centerSpriteX from '../utils'
 import GameInfo from '../gameInfo';
 import Textt from '../textt'
 
+
 let offsetY
-let arrowLeft
-let arrowRight
+
 let rotated = false
-let colorIndex
+let colorIndex = 0
 let time = 0
-let bg
-let fg
-let rectangle
-let borderColor = 'white'
-let playButton
-let platform
-let mainText = undefined
-let dude = undefined
-let homeButton = undefined
-let colors = ColorManager.getColors()
+const colors = ColorManager.getColors()
+
 let mainCamera
 
 export default class MenuScene extends Phaser.Scene {
     constructor() {
-        super({key: 'menuScene'})
+        super({ key: 'menuScene' })
     }
 
     init() {
+
     }
 
     create() {
@@ -74,7 +66,7 @@ export default class MenuScene extends Phaser.Scene {
         let playButtonScale = 3 * scx
 
         //HOMEBUTTON POSITION
-        let homeButtonX = 30 * scy
+        let homeButtonX = 30 * scx
         let homeButtonY = 30 * scy
         let homeButtonScale = 4 * scx
 
@@ -85,57 +77,66 @@ export default class MenuScene extends Phaser.Scene {
         let arrowScale = 6 * scx
 
 
-        //Colors
-        bg = ColorManager.getRandomColor()
-        colorIndex = Math.floor(Math.random() * colors.length - 1)
-        if (colorIndex === -1) colorIndex = 0
-        let fg = colors[colorIndex]
+        colorIndex = Math.floor(Math.random() * colors.length)
+        this.fg = colors[colorIndex]
+        let clrs = colors.filter(c => c !== this.fg)
+        this.bg = clrs[Math.floor(Math.random() * clrs.length)]
+
+
+        this.cameras.main.setBackgroundColor(this.bg)
+
+
         //MAIN TEXT
-        mainText = new Textt(this, mainTextX, mainTextY, 'Choose your color', fg, mainTextScale)
-        mainText.setX(this.cameras.main.width / 2 - mainText.getWidth() / 2)
+        this.mainText = new Textt(this, mainTextX, mainTextY, 'CHOOSE YOUR COLOR', this.fg, mainTextScale)
+        this.mainText.setX(this.cameras.main.width / 2 - this.mainText.getWidth() / 2)
+
         //DUDE
-        dude = this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run_0' + fg).setScale(dudeScale)
+        this.dude = this.add.sprite(dudeX, dudeY, 'sprites', 'dude_run_0' + this.fg).setScale(dudeScale)
             .setOrigin(0, 0)
-        // dude.play('duderun' + fg)
-        dude.play('duderun' + fg)
-            .anims.setTimeScale(0.7)
-        centerSpriteX(this, dude)
+
+        this.dude.play('duderun' + this.fg).anims
+            .setTimeScale(0.7)
+
+        centerSpriteX(this, this.dude)
 
         //PLATFORM
-        platform = this.add.sprite(platformX, platformY, 'sprites', 'dot' + fg).setOrigin(0, 0)
+        this.platform = this.add.sprite(platformX, platformY, 'sprites', 'dot' + this.fg)
+            .setOrigin(0, 0)
             .setScale(platformScaleX, platformScaleY)
-        centerSpriteX(this, platform)
-        //
 
-        arrowLeft = this.add.sprite(0, chooseY, 'buttons', 'arrow' + fg)
+        centerSpriteX(this, this.platform)
+
+        this.next = () => {
+            colorIndex++
+            if (colorIndex > colors.length - 1)
+                colorIndex = 0
+            this.changeColor()
+        }
+        this.prev = () => {
+            colorIndex--
+            if (colorIndex < 0)
+                colorIndex = colors.length - 1
+            this.changeColor()
+        }
+
+        this.arrowLeft = this.add.sprite(0, chooseY, 'buttons', 'arrow' + this.fg)
             .setScale(arrowScale)
             .setFlipX(true)
             .setOrigin(0, 0)
             .setInteractive()
-            .on('pointerup', () => {
-                colorIndex--
-                if (colorIndex < 0)
-                    colorIndex = colors.length - 1
-                console.log(colors[colorIndex])
-                changeColor()
-            })
-        arrowLeft.setX(mainText.x - 35 * scx - arrowLeft.width)
-        // rectangle = this.add.sprite(chooseX, chooseY, 'buttons', 'color' + fg)
-        //     .setScale(chooseScale)
-        arrowRight = this.add.sprite(30 + mainText.x + mainText.getWidth(), chooseY, 'buttons', 'arrow' + fg)
+            .on('pointerup', this.prev)
+
+        this.arrowLeft.setX(this.mainText.x - 35 * scx - this.arrowLeft.width)
+
+
+        this.arrowRight = this.add.sprite(30 + this.mainText.x + this.mainText.getWidth(), chooseY, 'buttons', 'arrow' + this.fg)
             .setScale(arrowScale)
             .setOrigin(0, 0)
             .setInteractive()
-            .on('pointerup', () => {
-                colorIndex++
-                console.log(colors[colorIndex])
-                if (colorIndex > colors.length - 1)
-                    colorIndex = 0
-                changeColor()
-            })
+            .on('pointerup', this.next)
 
         //HOMEBUTTON
-        homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
+        this.homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + this.fg)
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
@@ -143,84 +144,71 @@ export default class MenuScene extends Phaser.Scene {
                 GameInfo.prevScene = this.scene.key
             })
         //PLAY BUTTON
-        if (fg === 'white') {
+        if (this.fg === 'white') {
             borderColor = 'black'
         }
-        if (fg === 'black') {
+        if (this.fg === 'black') {
             borderColor = 'white'
         }
 
-        playButton = this.add.sprite(playButtonX, playButtonY, 'buttons', 'playButton' + fg)
+        const submit = () => {
+            GameInfo.prevScene = this.scene.key
+            GameInfo.players.localPlayer.color = colors[colorIndex]
+            if (GameInfo.mode === 'multi') {
+                this.scene.start('waitingScene')
+                this.scene.sleep()
+            } else if (GameInfo.mode === 'single') {
+                this.scene.start('singleGameScene')
+                this.scene.sleep()
+            }
+            this.scene.stop('menuScene')
+        }
+        this.playButton = this.add.sprite(playButtonX, playButtonY, 'buttons', 'playButton' + this.fg)
             .setScale(playButtonScale)
             .setOrigin(0, 0)
             .setInteractive()
-            .on('pointerup', () => {
-                GameInfo.prevScene = this.scene.key
-                GameInfo.players.localPlayer = {color: colors[colorIndex]}
-
-                if (GameInfo.mode === 'multi') {
-                    Messenger.init(this)
-                } else if (GameInfo.mode === 'single') {
-                    this.scene.start('singleGameScene')
-                    this.scene.sleep()
-                }
-            })
-        centerSpriteX(this, playButton)
+        centerSpriteX(this, this.playButton)
+        this.playButton.on('pointerup', submit)
 
 
-        // ColorManager.getColors().forEach((c, i) => {
-        //     if (i % 3 === 0) {
-        //         rectX = firstRectX
-        //         rectY += scy * rectSize + margin
-        //     }
-        //     let r = this.add.sprite(rectX, rectY, 'buttons', 'color' + c)
-        //         .setScale(1.5 * scx)
-        //     r.color = c
-        //     r.setInteractive()
-        //     r.on('pointerup', () => {
-        //         fg = r.color
-        //         changeColor(fg)
-        //         playButton.setFrame('playButton' + fg)
-        //         homeButton.setFrame('homeButton' + fg)
-        //         mainText.flipColor(fg)
-        //         platform.setFrame('dot' + fg)
-        //         dude.play('duderun' + fg)
-        //     })
-        //     rectX += scx * (margin + rectSize)
-        // })
+
         GameInfo.prevScene = this.scene.key
 
+        this.changeColor = function () {
+            this.fg = colors[colorIndex]
+            if (this.fg === this.bg) {
+                let clrs = colors.filter(c => c !== this.fg)
+                this.bg = clrs[Math.floor(clrs.length * Math.random())]
+            }
+
+            this.cameras.main.setBackgroundColor(this.bg)
+            this.playButton.setFrame('playButton' + this.fg)
+            this.homeButton.setFrame('homeButton' + this.fg)
+            this.arrowRight.setFrame('arrow' + this.fg)
+            this.arrowLeft.setFrame('arrow' + this.fg)
+            this.mainText.flipColor(this.fg)
+            this.platform.setFrame('dot' + this.fg)
+            this.dude.play('duderun' + this.fg)
+
+            this.input.keyboard.on('keydown-SPACE', submit)
+            this.input.keyboard.on('keydown-H', this.prev)
+            this.input.keyboard.on('keydown-L', this.next)
+            this.input.keyboard.on('keydown-LEFT', this.prev)
+            this.input.keyboard.on('keydown-RIGHT', this.next)
+        }
     }
 
     update(t, delta) {
         time++
-        while (bg === colors[colorIndex]) {
-            bg = ColorManager.getRandomColor()
-            this.cameras.main.setBackgroundColor(bg)
-        }
         if (time % 250 === 0) {
-            let randomColor = ColorManager.getRandomColor()
-            this.cameras.main.setBackgroundColor(randomColor)
-            bg = randomColor
-        }
-        if (Display.mobile) {
-            if (window.innerWidth < window.innerHeight) {
-                document.getElementById('rotateScreen').style.visibility = 'visible'
-            } else {
-                document.getElementById('rotateScreen').style.visibility = 'hidden'
-            }
+            let index = Math.floor((colors.length) * Math.random())
+            this.bg = colors.filter(c => c !== this.fg)[index]
+            this.cameras.main.setBackgroundColor(this.bg)
+
+
         }
     }
 }
 
-function changeColor() {
-    fg = colors[colorIndex]
-    playButton.setFrame('playButton' + fg)
-    homeButton.setFrame('homeButton' + fg)
-    arrowRight.setFrame('arrow' + fg)
-    arrowLeft.setFrame('arrow' + fg)
-    mainText.flipColor(fg)
-    platform.setFrame('dot' + fg)
-    dude.play('duderun' + fg)
-}
+
 

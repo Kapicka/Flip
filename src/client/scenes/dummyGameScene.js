@@ -1,143 +1,208 @@
-import Animations from '../animations'
-import ColorManager from '../ColorManager'
+import ColorManager from '../colorManager'
 import Messenger from '../messenger'
-import Score from '../Score'
-import Runner from '../runner'
+import Display from "../display";
 import GameInfo from '../gameInfo'
-import GameActions from '../gameActions'
-import runnerStates from '../runnerStates'
-import Display from '../display'
-import Controller from '../controller';
+import GameSprite from "../gameSprites/gameSprite";
+import SwipeController from '../swipeController'
+import { getGameScenePositions } from "../positions";
+import Lives from '../lives'
+import Score from '../Score'
+import EnemyFactory from '../enemyFactory';
 
 
 export default class DummyGameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'dummyGameScene'})
-    }
-
-    init() {
-        Controller.init(this)
-        GameActions.init(this)
-        GameInfo.currentScene = this
-    }
-
-    preload() {
+        super({ key: 'dummyGameScene' })
     }
 
     create() {
-        Animations.init(this)
-        // this.add.receangle(0, 0, Display.gamingArea.width, Display.gamingArea.height, 'black').setOrigin(0, 0)
+
+        this.enemyFactory = new EnemyFactory(this)
+        let p = getGameScenePositions(this)
+        this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.remotePlayer.color
         this.backgroundColor = GameInfo.players.localPlayer.color
 
         while (this.foregroundColor === this.backgroundColor) {
             this.foregroundColor = ColorManager.getRandomColor()
         }
-        GameInfo.players.remotePlayer.color = this.foregroundColor
         this.cameras.main.setBackgroundColor(this.backgroundColor)
-
-
-        //STARTING POSITIONS
-
-        let w = Display.gamingArea.width//this.cameras.main.width
-        let h = Display.gamingArea.height//this.cameras.main.height
-        let cx = w / 2
-        let cy = h / 2
-        let x = this.cameras.main.x + ((this.cameras.main.width - w))
-        let y = this.cameras.main.y
-        let scx = Display.gamingArea.scaleX
-        let scy = Display.gamingArea.scaleY
-        let widthCrop = Display.widthCrop
-        let heightCrop = Display.heightCrop
-        let gamingScaleX = Display.gamingArea.scaleX
-        let gamingScaleY = Display.gamingArea.scaleY
-        let fg = this.foregroundColor
-
-        //DUDE POSITION
-        let dudeX = x + 40 * scx
-        let dudeY = 20 * scy
-        let dudeScale = 4 * scx
-
-        //PLATFORM  POSITION
-        let platformX = (x - w)
-        let platformWidth = (w * 3) * scx
-        let platformHeight = 10 * scy
-        let platformY = (h * (1 - (1 / 4))) - platformHeight
-        let platformscale = 3 * scx
-
-        //DISPLAYED LIVES POSSITONS
-        let liveMarginLeft = 25 * scx
-        let liveX = 30 * scx
-        let liveY = 30 * scx
-        let liveScale = 3 * scx
-
-        //DISPLAYD SCORE POSITON
-        let displayedScoreX = x + w - (liveScale * 15)
-        let displayedScoreY = liveY
-        let displaydScoreSize = 3 * scx
-
-        //GROUPS
-        this.platforms = this.add.group()
-        this.enemies = this.add.group()
+        //GROUPS        
         this.gameObjects = this.add.group()
         this.movableObjects = this.add.group()
-        this.bullets = this.add.group()
-        this.lives = this.add.group()
 
-        // PLATFORMS
-        let p = this.platforms.create(platformX, platformY, 'sprites', 'dot' + this.foregroundColor)
+
+        //PLATFORMS
+        this.platform = this.add.image(
+            p.platformX,
+            p.platformY,
+            'sprites',
+            'dot' + this.foregroundColor)
+
+        this.platform.setScale(p.platformWidth, p.platformHeight)
             .setOrigin(0, 0)
-            .setScale(platformWidth, platformHeight)
+        this.platform.flipColor = function (color) {
+            this.setFrame('dot' + color)
+        }
+
+        this.gameObjects.add(this.platform)
+
+        // SCORE
+        this.displayedScore = new Score(
+            this,
+            p.displayedScoreX - 100,
+            p.displayedScoreY,
+            p.displayedScoreSize,
+            this.foregroundColor)
+        this.id = 'score'
+
         // DUDE
-        this.dude = this.add.sprite(dudeX, dudeY, 'dude_jump_0' + this.foregroundColor)
-            .setOrigin(0, 0)
-        this.dude.play('dudejump' + this.foregroundColor)
-        this.dude.anim = 'jump'
-        this.dude.lives = 3
+        this.runner = this.enemyFactory.createEnemy(
+            'dude',
+            p.dudeX,
+            p.dudeY,
+            'dude',
+            'jump',
+            p.dudeScale,
+            false)
+        this.gameObjects.add(this.runner)
+        this.movableObjects.add(this.runner)
+        this.runner.lives = 3
 
-        this.dude.setScale(dudeScale)
-        this.dude.character = 'dude'
-        this.dude.id = 'dude'
-        this.gameObjects.add(this.dude)
+
+        //LIVES
+        this.lives = new Lives(
+            this,
+            p.liveX,
+            p.liveY,
+            this.runner.lives,
+            'sprites',
+            'live',
+            this.foregroundColor)
 
 
-        // DISPLAYED LIVES
-        for (let i = 0; i < this.dude.lives; i++) {
-            let l = this.lives.create(liveX + liveMarginLeft, liveY, 'sprites', 'live' +
-                fg).setScale(liveScale)
-            liveMarginLeft += l.width * liveScale + 1 * scx
-            l.key = 'live'
+
+        const flipColor = () => {
+            let temp = this.backgroundColor
+            this.backgroundColor = this.foregroundColor
+            this.foregroundColor = temp
+            this.gameObjects
+                .getChildren()
+                .forEach(go => go.flipColor(this.foregroundColor))
+            this.displayedScore.flipColor(this.foregroundColor)
+
+            this.lives.flipColor(this.foregroundColor)
+            this.cameras.main.setBackgroundColor(this.backgroundColor)
         }
 
-        //DISPLAYD SCORE LABLE & VALUE
-        this.displaydScore = new Score(this, displayedScoreX - 100, displayedScoreY, displaydScoreSize)
-        this.displaydScore.setScore(0)
-        Messenger.initGameComunication()
+        this.switchTurn = () => {
+            GameInfo.onTurn = !GameInfo.onTurn
+            flipColor()
+        }
 
-        this.cursors = this.input.keyboard.createCursorKeys();
+
+        const action = action => {
+            if (GameInfo.onTurn) {
+                Messenger.socket.emit('switchturn')
+                Messenger.socket.emit('action', action)
+                this.switchTurn()
+            }
+        }
+
+        this.input.keyboard.on('keydown-DOWN', () => action('slide'))
+        this.input.keyboard.on('keydown-UP', () => action('jump'));
+        this.swipeController.on('up', () => action('jump'))
+        this.swipeController.on('down', () => action('slide'))
+        this.input.keyboard.on('keydown-J', () => this.action('slide'))
+        this.input.keyboard.on('keydown-K', () => this.action('jump'))
+
+        initSocketEvents(this)
     }
 
-    update() {
-        if (window.innerWidth < window.innerHeight) {
-            document.getElementById('rotateScreen').style.visibility = 'visible'
-        } else {
-            document.getElementById('rotateScreen').style.visibility = 'hidden'
-        }
-        //Control dude
-        if (GameInfo.onTurn) {
-            let swipe = Controller.getSwipe()
-            if (this.cursors.down.isDown || swipe === 'down') {
-                switchTurn('duck')
-            }
-            if (this.cursors.up.isDown || swipe === 'up') {
-                switchTurn('jump')
-            }
-        }
-    }
 }
 
-function switchTurn(action) {
-    GameInfo.onTurn = false
-    GameActions.flipColor()
-    Messenger.socket.emit('switchturn', action)
+
+function initSocketEvents(scene) {
+    const socket = Messenger.getSocket()
+    const scx = Display.gamingArea.scaleX
+    const scy = Display.scaleY
+
+
+    socket.on('enemydestroyd', (id) => {
+        scene.gameObjects
+            .getChildren()
+            .find(e => e.id === id)
+            .destroy()
+    })
+        .on('switchturn', () => {
+            scene.switchTurn()
+        })
+        .on('runnerhit', () => {
+            scene.lives.removeLive()
+            scene.runner.lives--
+            scene.runner.play(scene.runner.character + scene.foregroundColor)
+        })
+        .on('enemiescreated', enemies => {
+            scene.enemyFactory.createFromList(enemies)
+        })
+        .on('animchanged', (info) => {
+            scene.gameObjects
+                .getChildren()
+                .find(s => s.id === info.id)
+                .setAnim(info.anim)
+        })
+        .on('enemycreated', enemy => {
+            let enemyScale = 5 * Display.scaleX
+            let enm = new GameSprite(scene, enemy.x, enemy.y, enemy.character, 'run', false)
+            enm.id = enemy.id
+            enm.setScale(enemyScale)
+            enm.flipColor(scene.foregroundColor)
+            enm.setAnim(enm.anim)
+            scene.gameObjects.add(enm)
+            scene.movableObjects.add(enm)
+        })
+        .on('objectmoved', info => {
+            let obj = scene.movableObjects
+                .getChildren()
+                .find(o => o.id === info.id)
+            if (obj !== undefined) {
+                obj.setPosition(info.x * scx, info.y * scy)
+            }
+        })
+        .on('spriteflip', id => {
+            scene.gameObjects.getChildren()
+                .find(go => go.id === id)
+                .setFlipY(true)
+        })
+    Messenger.socket.on('playerdisconnect', () => {
+        Messenger.socket.disconnect()
+        scene.scene.start('disconnectScene', { subject: 'player' })
+        scene.scene.stop('dummyGameScene')
+    })
+    Messenger.socket.on('disconnect', () => {
+        scene.scene.start('disconnectScene', { subject: 'server' })
+        Messenger.socket.disconnect()
+        scene.scene.stop('dummyGameScene')
+    })
+    Messenger.socket.on('gameover', () => {
+        Messenger.socket.removeAllListeners()
+        Messenger.socket.disconnect()
+        scene.scene.start('gameOverScene')
+        scene.scene.stop('dummyGameScene')
+    })
+        .on('score', () => {
+            GameInfo.score++
+            scene.displayedScore.setScore(GameInfo.score)
+
+        })
 }
+
+
+
+
+
+
+
+
+
+

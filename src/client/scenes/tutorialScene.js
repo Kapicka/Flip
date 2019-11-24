@@ -1,25 +1,23 @@
-import Animations from '../animations'
+
 import EnemyFactory from '../enemyFactory'
 import PlatformFactory from '../platformFactory'
-import Runner from '../runner'
+import Runner from '../gameSprites/runner'
 import Textt from '../textt'
 import Display from '../display'
-import Controller from '../controller'
-import ColorManager from "../ColorManager";
-import GameInfo from "../gameInfo";
-
-let pos = 0
-let colored = false
+import Controller from '../swipeController'
+import ColorManager from "../colorManager";
+import EnemyGenerator from '../enemyGenerator'
+import SwipeController from '../swipeController'
+import { getTutorialScenePositions } from '../positions'
 let onTurn = true
-let isDown = false
-let step = 1
-let scene = undefined
-let enemies = []
+
+
+
+
 export default class TutorialScene extends Phaser.Scene {
     constructor() {
-        super({key: 'tutorialScene'})
+        super({ key: 'tutorialScene' })
     }
-
     init() {
         EnemyFactory.init(this)
         PlatformFactory.init(this)
@@ -27,277 +25,377 @@ export default class TutorialScene extends Phaser.Scene {
     }
 
     create() {
-        Animations.init(this)
-        this.foregroundColor = ColorManager.getRandomColor()
-        this.backgroundColor = ColorManager.getRandomColor()
-        while (this.foregroundColor === this.backgroundColor) {
-            this.backgroundColor = ColorManager.getRandomColor()
-        }
 
+        const enemies = [
+            {
+                type: 'flying',
+                x: 221,
+                y: 217
+            },
+            {
+                type: 'running',
+                x: 610,
+                y: 217
+            },
+        ].map(e => {
+            e.x = Display.scaleX * e.x + Display.width
+            e.y = Display.scaleY * e.y
+            return e
+
+        })
+        const p = getTutorialScenePositions(this)
+        this.enemyFactory = new EnemyFactory(this)
+        this.enemyGenerator = new EnemyGenerator(this)
+        this.swipeController = new SwipeController(this, 30)
+        this.foregroundColor = ColorManager.getRandomColor()
+        this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 
 
-        //STARTING POSITIONS
-        let w = Display.gamingArea.width
-        let h = Display.gamingArea.height
-        let cx = w / 2
-        let cy = h / 2
-        let x = this.cameras.main.x + ((Display.width - w))
-        let y = this.cameras.main.y
-        let scx = Display.gamingArea.scaleX
-        let scy = Display.gamingArea.scaleY
-        let fg = this.foregroundColor
-        //Home button
 
-        let homeButtonX = 30 * scy
-        let homeButtonY = 30 * scy
-        let homeButtonScale = 4 * scx
-
-        //DUDE POSITION
-        let dudeX = x + 30 * scx
-        let dudeY = 20 * scy
-        let dudeScale = 4 * scx
-
-        //PLATFORM  POSITION
-        let platformX = (x - w)
-        let platformY = h * (1 - (1 / 4))
-        let platformWidth = (w * 3) * scx
-        let platformHeight = 10 * scy
-        let platformscale = 3 * scx
-
-
-        let awsomeTextX = 30
-        let awsomeTextY = 60 * scy
-        let awsomeTextScale = 5 * scx
-
-        let endTextX = 30
-        let endTextY = 30 * scy
-        let endTextScale = 5 * scx
-
-        let mainTextY = awsomeTextY
-        let mainTextX = x + cx
-        let mainTextScale = 3 * scx
-
-        let turnTextX = x + cx + 20 * scx
-        let turnTextY = cy + 30 * scy
-        let turnTextScale = 3 * scx
-
-        let pressOrSwipe = 'Swipe'
-        let keyOrNothing = ' '
-        if (!Display.mobile) {
-            pressOrSwipe = 'Press'
-            keyOrNothing = ' key '
-        }
         //GROUPS
-        this.jumpingAnimals = this.add.group()
         this.enemies = this.add.group()
         this.platforms = this.physics.add.staticGroup()
-        this.gameObjects = this.add.group()
         this.movableObjects = this.add.group()
-        this.fallableObjects = this.add.group()
-        // PLATFORMS
-        let p = this.platforms.create(platformX, platformY, 'sprites', 'dot' + fg)
-            .setOrigin(0, 0)
-            .setScale(platformWidth, platformHeight)
-            .refreshBody()
-        // DUDE
-        this.dude = new Runner(this, dudeX, dudeY, 'dude')
-            .setScale(dudeScale).setOrigin(0, 0)
+        this.gameObjects = this.add.group()
+        this.platformers = this.add.group()
 
+
+        //Texts
         //Home button
-        this.homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + fg)
-            .setScale(homeButtonScale)
+        this.homeButton = this.add.sprite(p.homeButtonX, p.homeButtonY, 'buttons', 'homeButton' + this.foregroundColor)
+            .setScale(3 * Display.scaleX)
             .setInteractive()
             .on('pointerup', () => {
-                pos = 0
-                scene = undefined
-                colored = false
-                onTurn = true
-                isDown = false
-                step = 1
-                enemies = []
                 this.scene.start('firstScene')
                 this.scene.stop('tutorialScene')
             })
         //AWSOME TEXT
-        this.awsomeText = new Textt(this, awsomeTextX, awsomeTextY, 'Nadhera', fg, awsomeTextScale)
-        this.awsomeText.setVisible(false)
-        this.awsomeText.setX(cx - this.awsomeText.width / 2)
+        this.awsomeText = new Textt(this, p.awsomeTextX, p.awsomeTextY, 'AWSOME', this.foregroundColor, p.awsomeTextScale)
+            .setVisible(false)
+            .centerX()
         //MAIN TEXT
-        this.mainText = new Textt(this, mainTextX, mainTextY, pressOrSwipe + ' up' + keyOrNothing + 'to jump', fg, mainTextScale)
-        let textOffsetY = this.mainText.height + 3 * scy
-        this.mainText.setX(cx - this.mainText.width / 2)
+        this.mainText = new Textt(this, p.mainTextX, p.mainTextY, 'MAIN', this.foregroundColor, p.mainTextScale)
+            .centerX()
         //TURN TEXT
-        this.turnText = new Textt(this, turnTextX, turnTextY, 'Your turn', fg, awsomeTextScale)
-        this.turnText.setVisible(false)
+        this.turnText = new Textt(this, p.turnTextX, p.turnTextY, 'YOUR TURN', this.foregroundColor, p.awsomeTextScale)
+            .setVisible(false)
         //END TEXT
-        this.endText = new Textt(this, 0, cy, 'You are ready to play!', fg, awsomeTextScale).centerX()
-        this.endText.setVisible(false)
+        this.endText = new Textt(this, 0, p.endTextY, 'You are ready to play!', this.foregroundColor, p.awsomeTextScale)
+            .centerX()
+            .setVisible(false)
+
+        //PLATFORMS
+        this.platform = this.platforms.create(
+            p.platformX,
+            p.platformY,
+            'sprites',
+            'dot' + this.foregroundColor
+        )
+
+        this.platform.setOrigin(0, 0)
+            .setScale(p.platformWidth, p.platformHeight)
+            .refreshBody()
+
+        this.platform.flipColor = function (color) {
+            this.setFrame('dot' + color)
+        }
+        this.gameObjects.add(this.platform)
+
+        //RUNNER
+        this.runner = new Runner(this, p.dudeX, p.dudeY, 'jumpingState', true)
+            .setScale(p.dudeScale)
+            .setAnim('jump')
+        this.runner.body.updateBounds()
+        this.gameObjects.add(this.runner)
+        this.movableObjects.add(this.runner)
+        this.runner.lives = 10000
+
+
+
+        this.stages = new Stages(this)
+        this.currentStage = this.stages['jumpStage']
+        this.currentStage.start()
+
+
+        this.next = (stage) => {
+            let text = ['AWSOME', 'GOOD JOB', 'PERFECT', 'WELL DONE', 'SUPER'][Math.floor(Math.random() * 5)]
+            this.currentStage = this.stages['emptyStage']
+            this.stages['emptyStage'].start()
+            this.awsomeText.setText(text)
+            this.awsomeText.setVisible(true)
+            this.mainText.setVisible(false)
+            this.time.delayedCall(2000, () => {
+                this.awsomeText.setVisible(false)
+                this.mainText.setVisible(true)
+                this.currentStage = this.stages[stage]
+                this.stages[stage].start()
+            })
+        }
+
+
+
+
+        this.runner.on('hit', () => this.currentStage.hit())
+        this.runner.on('jumpdown', () => this.currentStage.jumpdown())
+        this.runner.on('jump', () => this.currentStage.jump())
+        this.runner.on('slide', () => this.currentStage.slide())
+        this.runner.on('run', () => { this.currentStage.run() })
+
+
+
+        this.action = function (action) {
+            if (onTurn) {
+                if (action === 'up') {
+                    this.runner.jump()
+                }
+                if (action === 'down') {
+                    this.runner.slide()
+
+                }
+            }
+        }
+
+        this.input.keyboard.on('keydown-UP', () => this.action('up'))
+        this.input.keyboard.on('keydown-DOWN', () => this.action('down'))
+        this.swipeController.on('up', () => this.action('up'))
+        this.swipeController.on('down', () => this.action('down'))
+
+
+
         //COLLIDERS AND OVERLAPS
-        //platforms and dude
+        this.runnerCollider = this.physics.add.collider(this.platforms, this.runner,
+            (runner, platforms) => runner.run())
+        this.physics.add.collider(this.platformers, this.platforms)
 
-        let stopFlag = true
-        this.physics.add.collider(this.platforms, this.dude, (p, d) => {
-            p.grounded()
-            if (colored && !onTurn && stopFlag) {
-                stopFlag = false
-                this.time.delayedCall(800, () => {
-                    this.dude.jump()
-                    this.turnText.setText('Your turn')
-                    handleTutorialSteps('jump')
-                    stopFlag = true
-                    step++
-                });
-            }
+        this.physics.add.overlap(this.runner, this.enemies, (dude, enemy) => {
+            this.runner.hit()
+            console.log('hhhh')
+            this.enemies.remove(enemy)
+            enemy.flipY = true
         })
 
-        //platforms object and fallableObjects
-        this.physics.add.collider(this.fallableObjects, this.platforms)
-        //dude  and enemies
-        this.physics.add.overlap(this.dude, this.enemies, (d, e) => {
-            if (!e.passed) {
-                this.mainText
-                e.flipY = true
-                this.fallableObjects.remove(e)
-                this.enemies.remove(e)
-                e.passed = true
-                this.awsomeText.setText('Nooo! Try it again.').centerX()
-                this.mainText.setVisible(false)
-                scene.time.delayedCall(2000, () => {
-                    scene.awsomeText.setVisible(false)
-                    this.mainText.setVisible(true)
-                });
-                EnemyFactory.createEnemy(1)
-            }
+
+
+
+        this.generator = {
+            enabled: true,
+            generate: () => {
+                if (this.generator.enabled) {
+                    let enemy = this.enemyFactory.createFromListPhysics(enemies, -300 * Display.scaleX)
+                }
+            },
+            start: () => { this.generator.enabled = true },
+            stop: () => { this.generator.enabled = false }
+        }
+
+        this.enemyFactory.on('enemycreated', enemy => {
+            this.movableObjects.add(enemy)
+            this.gameObjects.add(enemy)
+            this.enemies.add(enemy)
         })
-        this.cursors = this.input.keyboard.createCursorKeys();
-        scene = this
+
+        const flipColor = () => {
+
+            let temp = this.backgroundColor
+            this.backgroundColor = this.foregroundColor
+            this.foregroundColor = temp
+
+            this.awsomeText.flipColor(this.foregroundColor)
+            this.turnText.flipColor(this.foregroundColor)
+            this.mainText.flipColor(this.foregroundColor)
+            this.homeButton.setFrame('homeButton' + this.foregroundColor)
+
+            this.gameObjects
+                .getChildren()
+                .forEach(go => go.flipColor(this.foregroundColor))
+
+            this.cameras.main.setBackgroundColor(this.backgroundColor)
+        }
+        let i = 0
+
+        this.switchTurn = () => {
+
+            onTurn = !onTurn
+            flipColor()
+
+            if (onTurn === true) {
+                this.turnText.setText('YOUR TURN')
+
+
+            } if (onTurn === false) {
+
+                this.turnText.setText('PLAYER2 TURN')
+                this.turnText.flipColor(this.foregroundColor)
+
+                this.time.delayedCall(2000, () =>
+                    this.runner.jump()
+
+                )
+
+            }
+        }
     }
 
     update() {
-        this.gameObjects.getChildren().forEach(e => {
-            if (e.x < 0) {
-                e.destroy()
-            }
-            if (e.x < this.dude.x && !e.passed) {
-                this.awsomeText.setText('Well done!').centerX()
-                scene.time.delayedCall(2000, () => {
-                    scene.awsomeText.setVisible(false)
-                    scene.mainText.setVisible(true)
-                });
-                handleTutorialSteps('multiplayer')
+
+        this.enemies.getChildren().forEach((e, i) => {
+            if (e.x < this.runner.x) {
+                this.currentStage.scored()
+                this.enemies.remove(e)
             }
         })
-        if (onTurn) {
-            let swipe = Controller.getSwipe()
-            if (this.cursors.down.isDown || swipe === 'down') {
-                if (this.dude.duck()) {
-                    handleTutorialSteps('duck')
-                    if (colored) {
-                        this.turnText.setText('2 player turn')
-                    }
-                }
+        this.movableObjects.getChildren().forEach((e, i) => {
+            if (e.x < 0) {
+                e.destroy()
+                if (!this.enemies.getChildren().length)
+                    this.generator.generate()
             }
-            if (this.cursors.up.isDown || swipe === 'up') {
-                if (this.dude.jump()) {
-                    handleTutorialSteps('jump')
-                    if (colored) {
-                        this.turnText.setText('2 player turn')
-                    }
+        })
+
+    }
+}
+
+
+class Stages {
+    constructor(scene) {
+
+        let pressOrSwipe = 'SWIPE'
+        if (!Display.mobile) { pressOrSwipe = 'PRESS KEY' }
+
+        const emptyF = () => { }
+        this.emptyStage = {
+            start: emptyF,
+            jump: emptyF,
+            hit: emptyF,
+            slide: emptyF,
+            scored: emptyF,
+            jumpdown: emptyF,
+            run: emptyF
+        }
+
+        const jumpStage = {
+            name: 'jumpStage',
+            start: function () {
+                scene.mainText.setText(pressOrSwipe + ' UP TO JUMP')
+                scene.mainText.centerX()
+            },
+            jump: function () { scene.next(this.nextStage) },
+            slide: emptyF, jumpdown: emptyF, scored: emptyF, hit: emptyF, run: emptyF
+        }
+        const slideStage = {
+            name: 'slideStage',
+            start: function () {
+                scene.mainText.setText(pressOrSwipe + ' DOWN TO SLIDE')
+                scene.mainText.centerX()
+            },
+            slide: function () { scene.next(this.nextStage) },
+            jump: emptyF, jumpdown: emptyF, scored: emptyF, hit: emptyF, run: emptyF
+        }
+        const getUpStage = {
+            name: 'getUpStage',
+            start: function () {
+                scene.mainText.setText(pressOrSwipe + ' UP TO RUN AGAIN')
+                scene.mainText.centerX()
+            },
+            run: function () { scene.next(this.nextStage) },
+            slide: emptyF, jumpdown: emptyF, scored: emptyF, hit: emptyF, jump: emptyF
+        }
+
+        const fallingStage = {
+            name: 'fallingStage',
+            start: function () {
+                scene.mainText.setText('JUMP AND ' + pressOrSwipe + ' DOWN TO FALL FASTER')
+                scene.mainText.centerX()
+            },
+            jumpdown: function () { scene.next(this.nextStage) },
+            jump: emptyF, slide: emptyF, scored: emptyF, hit: emptyF, run: emptyF
+        }
+
+        const enemyStage = {
+
+            name: 'enemyStage',
+            count: 0,
+            start: function () {
+                scene.mainText.setText('DONT GET KILLED BY ENEMIES!')
+
+                scene.generator.generate()
+            },
+            scored: function () {
+                this.count++
+                console.log('count stage5', this.count)
+                if (this.count > 2) {
+                    scene.generator.stop()
+                    scene.next(this.nextStage)
+
                 }
-            }
+            },
+            hit: () => {
+                scene.mainText.setText('OH NOO, TRY IT AGAIN!')
+                scene.mainText.centerX()
+                scene.time.delayedCall(2000, () => scene.mainText.setText('DONT GET KILLED BY ENEMIES!'))
+            },
+            jump: emptyF, slide: emptyF, jumpdown: emptyF, run: emptyF
         }
-        if (window.innerWidth < window.innerHeight) {
-            document.getElementById('rotateScreen').style.visibility = 'visible'
-        } else {
-            document.getElementById('rotateScreen').style.visibility = 'hidden'
+
+        const turnStage = {
+            name: 'turnStage',
+
+            step: 0,
+            start: function () {
+                scene.mainText.setText('THE MULTIPLAYER MODE IS TURN BASED~' +
+                    'PLAY WHEN FOREGROUND HAS YOUR COLOR')
+                scene.mainText.centerX()
+                scene.turnText.setVisible(true)
+                this.runnerPrevState = scene.runner.currentState.name
+
+            },
+
+            action: function (state) {
+                if (this.runnerPrevState !== 'jumpingState') {
+                    scene.switchTurn()
+                    this.step++
+                    if (this.step > 3) { scene.next(this.nextStage) }
+                }
+                this.runnerPrevState = state
+            },
+
+            jump: function () { this.action('jumpingState') },
+            slide: function () { this.action('slidingState') },
+            jumpdown: function () { this.action('jumpingState') },
+            run: function () { this.action('runningState') },
+
+
+            scored: emptyF
         }
+
+        const finalStage = {
+            name: 'finalStage',
+            start: function () {
+                scene.turnText.setVisible(false)
+                scene.mainText.setVisible(false)
+                scene.awsomeText.setVisible(true)
+                scene.gameObjects.getChildren().forEach(go => go.setVisible(false))
+                scene.awsomeText.setText('YOU ARE READY TO PLAY!')
+                scene.awsomeText.centerX()
+                scene.awsomeText.setY(Display.height / 2 - 7 * 5 * Display.scaleX)
+                scene.awsomeText.setScale(5)
+
+            },
+            jump: emptyF, slide: emptyF, scored: emptyF, run: emptyF
+        }
+
+        const stages = [jumpStage, slideStage, getUpStage, fallingStage, enemyStage, turnStage, finalStage]
+        stages.map((s, i) => {
+            if (stages[i + 1] !== undefined)
+                s.nextStage = stages[i + 1].name
+            return s
+        })
+            .forEach(stage => this[stage.name] = stage)
+
+
+
     }
 }
-
-function handleTutorialSteps(action) {
-    let pressOrSwipe = 'Swipe'
-    let keyOrNothing = ' '
-    if (!Display.mobile) {
-        pressOrSwipe = 'Press'
-        keyOrNothing = ' key'
-    }
-    if (step === 1 && action === 'jump') {
-        let f = function () {
-            scene.mainText.setText('When jumping,' + pressOrSwipe + ' down' + keyOrNothing + 'to fall faster')
-                .centerX()
-        }
-        setAwsomeText(scene, f)
-    }
-    if (step === 2 && action === 'duck') {
-        let f = function () {
-            scene.mainText.setText('Dont get killed~by enemies!')
-                .centerX()
-            console.log('step :' + step)
-            EnemyFactory.createEnemy(1)
-        }
-        setAwsomeText(scene, f)
-    }
-    if (step === 3 && action === 'multiplayer') {
-        let t = 'The multiplayer mode is turn based~' +
-            'Play when foreground has your color'
-
-        let f = function () {
-            colored = true
-            scene.mainText.setText(t).centerX()
-            scene.turnText.setVisible(true)
-        }
-        setAwsomeText(scene, f)
-    }
-
-    if (((colored && action === 'jump') || colored && action === 'duck')) {
-        onTurn = !onTurn
-        let fg = scene.foregroundColor
-        let bg = scene.backgroundColor
-        let tmp = fg
-        fg = bg
-        bg = tmp
-        scene.foregroundColor = fg
-        scene.backgroundColor = bg
-        scene.dude.play('dude' + scene.dude.anim + fg)
-        scene.platforms.getChildren().forEach(p => p.setFrame('dot' + fg))
-        scene.cameras.main.setBackgroundColor(bg)
-        scene.homeButton.setFrame('homeButton' + fg)
-        scene.turnText.setColor(fg)
-        scene.mainText.setColor(fg)
-        scene.awsomeText.setColor(fg)
-        scene.endText.setColor(fg)
-    }
-    if (step > 5) {
-        onTurn = false
-        scene.platforms.getChildren().forEach(p => p.destroy())
-        scene.dude.destroy()
-        scene.mainText.setVisible(false)
-        scene.awsomeText.setVisible(false)
-        scene.turnText.setVisible(false)
-        console.log('wtf!!!!')
-        scene.endText.setVisible(true)
-    }
-}
-
-function setAwsomeText(scene, f) {
-    step++
-    let awsomeTexts = ['Perfect', 'Good job', 'Awsome', 'You are doing well!']
-    let index = Math.floor(setAwsomeText.length * (Math.random() - 0.1))
-    if (index < 0) index++
-    let t = awsomeTexts[index]
-    console.log(t)
-    console.log('index', index)
-    scene.awsomeText.setText(t)
-        .centerX()
-    scene.awsomeText.setVisible(true)
-    scene.mainText.setVisible(false)
-    scene.time.delayedCall(2000, () => {
-        scene.awsomeText.setVisible(false)
-        scene.mainText.setVisible(true)
-        f()
-    });
-}
-
 
 

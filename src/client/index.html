@@ -1,8 +1,9 @@
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
     <style>
@@ -15,7 +16,8 @@
         }
 
         #rotateScreen {
-            position: fixed;
+            position: absolute;
+            font-size: 30px;
             top: 0;
             left: 0;
             z-index: 2;
@@ -33,21 +35,25 @@
         }
 
         @font-face {
-            font-family: 'pixel'; /*a name to be used later*/
-            src: url('./assets/pixel.ttf'); /*URL to font*/
+            font-family: 'pixel';
+            /*a name to be used later*/
+            src: url('./assets/pixel.ttf');
+            /*URL to font*/
         }
     </style>
 </head>
-<body>
-<div id="rotateScreen">
-    <div id="mainText">Rotate me...</div>
-    <img id="man" src="assets/dude.png">
-    <!--    <object id="dude" data="assets/dude.svg" type="image/svg+xml"></object>-->
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
-<script src="./game.js">
 
-</script>
+<body>
+    <div id="rotateScreen">
+        <div id="mainText">Rotate me...</div>
+        <img id="man" src="assets/dude.png">
+        <!--    <object id="dude" data="assets/dude.svg" type="image/svg+xml"></object>-->
+    </div>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script> -->
+    <script src="./game.js">
+
+    </script>
 
 </body>
+
 </html>
