@@ -73,7 +73,7 @@ app.post('/scores/multi/', (req, res) => {
 })
 
 server.listen(port, () => {
-    console.log('server is listenning on port ' + port)
+    console.log('server is listening on port ' + port)
 })
 
 app.use(bundler.middleware());
