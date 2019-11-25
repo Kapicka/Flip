@@ -10,6 +10,8 @@
   "scripts": {
     "start": "cd src/server;node server.js",
     "db":"cd mongodb/; ./mongod --dbpath data/",
+    "build": "parcel build src/client/index.html",
+    "app": "cd src/server;node serverProd.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
