@@ -30,7 +30,7 @@ const single = {
 }
 
 function gameExist(id) {
-    const collection = 'multiplayer'
+    const collection = 'multi'
     const query = { "_id": objectId(id) }
     return new Promise((res, rej) =>
         mongo.connect(uri, mongoConfig)

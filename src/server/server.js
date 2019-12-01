@@ -60,10 +60,12 @@ app.post('/scores/multi/', (req, res) => {
     console.log('id: ', id, ' player: ', player, ' score: ', score)
     db.multi.gameExist(id)
         .then(exist => {
+            console.log('id: ', id, ' player: ', player, 'exist', exist)
             if (exist) {
                 return db.multi.addPlayer(id, player)
             }
             const game = { "_id": id, "score": score, "players": [player,] }
+            console.log('inserting gameeeeee')
             return db.multi.insertGame(game)
         })
         .then(id => res

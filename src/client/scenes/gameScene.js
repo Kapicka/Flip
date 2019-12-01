@@ -10,7 +10,6 @@ import ColorManager from "../colorManager";
 import GameSprite from '../gameSprites/gameSprite'
 import { getGameScenePositions } from "../positions";
 import Display from '../display';
-import FlyingEnemy from '../gameSprites/flyingEnemy';
 
 
 

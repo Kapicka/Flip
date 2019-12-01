@@ -140,7 +140,7 @@ function getTutorialScenePositions(scene) {
         platformX: Display.x,
         platformWidth: Display.width * 5,
         platformHeight: 10 * scy,
-        platformY: (h * (1 - (1 / 4))) - 10 * scy,
+        platformY: (h * (1 - (1 / 4))) ,
 
         awsomeTextX: 30,
         awsomeTextY: 60 * scy,

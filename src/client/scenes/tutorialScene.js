@@ -1,6 +1,8 @@
 
 import EnemyFactory from '../enemyFactory'
 import PlatformFactory from '../platformFactory'
+import GameSprite from '../gameSprites/gameSprite'
+import FlyingEnemy from '../gameSprites/flyingEnemy'
 import Runner from '../gameSprites/runner'
 import Textt from '../textt'
 import Display from '../display'
@@ -9,6 +11,9 @@ import ColorManager from "../colorManager";
 import EnemyGenerator from '../enemyGenerator'
 import SwipeController from '../swipeController'
 import { getTutorialScenePositions } from '../positions'
+const runningEnemies = ['deamon', 'duck', 'shaolin', 'pig', 'dog']
+const jumpingEnemies = ['frog']
+const flyingEnemies = ['bird']
 let onTurn = true
 
 
@@ -182,7 +187,9 @@ export default class TutorialScene extends Phaser.Scene {
             enabled: true,
             generate: () => {
                 if (this.generator.enabled) {
-                    let enemy = this.enemyFactory.createFromListPhysics(enemies, -300 * Display.scaleX)
+                    enemies.forEach(enemy => {
+                        createEnemy(this, enemy)
+                    })
                 }
             },
             start: () => { this.generator.enabled = true },
@@ -392,10 +399,38 @@ class Stages {
             return s
         })
             .forEach(stage => this[stage.name] = stage)
-
-
-
     }
 }
 
 
+function createEnemy(scene, enm) {
+    let scx = Display.gamingArea.scaleX
+    let scy = Display.gamingArea.scaleY
+    let x = enm.x * scx
+    let y = enm.y * scy
+    let enemy
+    let enemyScale = 5*scx
+    let character
+
+    if (enm.type === 'running') {
+        character = getRandomCharacter(runningEnemies)
+        enemy = new GameSprite(scene, x, y, character, 'run', true)
+        scene.platformers.add(enemy)
+    }
+    if (enm.type === 'flying') {
+        character = getRandomCharacter(flyingEnemies)
+        enemy = new FlyingEnemy(scene, x, y, character, 500)
+    }
+
+    scene.enemies.add(enemy)
+    scene.gameObjects.add(enemy)
+    scene.movableObjects.add(enemy)
+    enemy.setScale(enemyScale)
+        .setVelocityX(-300)
+        .setAnim(enemy.anim)
+}
+
+function getRandomCharacter(characters) {
+    let characterNumber = Math.floor(Math.random() * characters.length)
+    return characters[characterNumber]
+}
