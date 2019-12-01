@@ -9,6 +9,7 @@ function getGameScenePositions(scene) {
     let y = scene.cameras.main.y + ((Display.height - h) / 2)
     let scx = Display.gamingArea.scaleX
     let scy = Display.scaleY
+    let gscy = Display.gamingArea.scaleY
 
     //DUDE POSITION
     return {
@@ -23,7 +24,7 @@ function getGameScenePositions(scene) {
         platformX: Display.x,
         platformWidth: Display.width * 5,
         platformHeight: 10 * scy,
-        platformY: (h * (1 - (1 / 4))) - 10 * scy,
+        platformY: (h * (1 - (1 / 4))),
         //DISPLAYED LIVES POSSITONS,
         liveMarginLeft: -10 * scx,
         liveX: 30 * scx,
@@ -223,11 +224,6 @@ function getGameOverScenePositions(scene) {
 
         homeButtonX: 360 * scx,
         homeButtonY: 350 * scy,
-        //PLATFORM  POSITION,
-        platformX: Display.x,
-        platformWidth: Display.width,
-        platformHeight: 10 * scy,
-        platformY: (h * (1 - (1 / 4))) - 10 * scy,
         //DISPLAYED LIVES POSSITONS,
         liveMarginLeft: -10 * scx,
         liveX: 30 * scx,

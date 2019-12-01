@@ -8,7 +8,7 @@ export default class Runner extends GameSprite {
         this.currentState = this.states[state]
         this.lives = 3
         this.id = 'dude'
-        this.pivotY = 230 * Display.gamingArea.scaleY
+        this.pivotY = 240 * Display.gamingArea.scaleY
         this.body.setBounce(0.2)
 
     }
@@ -24,10 +24,10 @@ export default class Runner extends GameSprite {
     slide() {
         this.currentState.slide()
     }
-    gap() {
-        this.currentState.gap()
+    // gap() {
+    //     this.currentState.gap()
 
-    }
+    // }
 }
 
 

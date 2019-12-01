@@ -12,66 +12,12 @@ let enemyTypes = { running: runningEnemies, jumping: jumpingEnemies, flying: fly
 let enemyScale = 5.3 * Display.scaleX
 let prevType = 0
 let id = 0
-// .map(enemy => enemy.x * Display.scaleX)
-// .map(enemy => enemy.x * Display.scale)
 
 export default class EnemyFactory extends EventEmmiter {
     constructor(scene) {
         super()
-        let enemyScale = 5 * Display.scaleX
-        let scx = Display.scaleX
-        let scy = Display.scaleY
-        let w = Display.width
 
-
-        this.createFromList = (enemies) => {
-            enemies.forEach(e => {
-                let enemy = new GameSprite(scene, e.x * scx + w, e.y * scy, e.character, 'run', false)
-                enemy.id = e.id
-                enemy.setScale(enemyScale)
-                enemy.setAnim('run')
-                scene.gameObjects.add(enemy)
-                scene.movableObjects.add(enemy)
-            })
-        }
-
-
-        this.createFromListPhysics = (enemies, velocity) => {
-            enemies = enemies.map(e => {
-                let characters = enemyTypes[e.type]
-                e.character = getRandomCharacter(characters)
-                e.id = getId()
-                return e
-            })
-
-            this.emit('enemyinfomulti', enemies)
-            enemies.forEach(e => {
-                let x = e.x * scx + w
-                let y = e.y * scy
-                let enemy
-                if (e.type === 'running') {
-                    enemy = new GameSprite(scene, x, y, e.character, 'run', true)
-                    scene.platformers.add(enemy)
-                }
-                if (e.type === 'jumping') {
-                    enemy = new JumpingEnemy(scene, x, y, e.character, scene.platforms)
-                }
-                if (e.type === 'flying') {
-                    enemy = new FlyingEnemy(scene, x, y, e.character, 500)
-                }
-                enemy.id = e.id
-                scene.enemies.add(enemy)
-                scene.gameObjects.add(enemy)
-                scene.movableObjects.add(enemy)
-                enemy.setScale(enemyScale)
-                    .setVelocityX(velocity)
-                    .setAnim(enemy.anim)
-                this.emit('enemycreated', enemy)
-            })
-
-        }
-
-        this.createRandomEnemy = function (velocity) {
+        this.createRandomEnemy = function (velocity,) {
             let enemyTypeNumber = getRandomType()
             let character = getRandomCharacter(enemyTypes[enemyTypeNumber])
             let x = Display.width * Display.gamingArea.scaleX

@@ -1,7 +1,5 @@
 
-
 const Display = {
-
     init: function (cw, ch) {
         this.gamingArea = { width: cw, height: ch, scaleX: 1, scaleY: 1 }
         this.width = cw

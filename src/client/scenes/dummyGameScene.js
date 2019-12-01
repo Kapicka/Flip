@@ -126,6 +126,7 @@ function initSocketEvents(scene) {
     const socket = Messenger.getSocket()
     const scx = Display.gamingArea.scaleX
     const scy = Display.scaleY
+    const gscy = Display.gamingArea.scaleY
 
 
     socket.on('enemydestroyd', (id) => {
@@ -142,9 +143,6 @@ function initSocketEvents(scene) {
             scene.runner.lives--
             scene.runner.play(scene.runner.character + scene.foregroundColor)
         })
-        .on('enemiescreated', enemies => {
-            scene.enemyFactory.createFromList(enemies)
-        })
         .on('animchanged', (info) => {
             scene.gameObjects
                 .getChildren()
@@ -153,7 +151,7 @@ function initSocketEvents(scene) {
         })
         .on('enemycreated', enemy => {
             let enemyScale = 5 * Display.scaleX
-            let enm = new GameSprite(scene, enemy.x, enemy.y, enemy.character, 'run', false)
+            let enm = new GameSprite(scene, enemy.x * scx, enemy.y * gscy, enemy.character, 'run', false)
             enm.id = enemy.id
             enm.setScale(enemyScale)
             enm.flipColor(scene.foregroundColor)
@@ -166,7 +164,7 @@ function initSocketEvents(scene) {
                 .getChildren()
                 .find(o => o.id === info.id)
             if (obj !== undefined) {
-                obj.setPosition(info.x * scx, info.y * scy)
+                obj.setPosition(info.x * scx, info.y * gscy)
             }
         })
         .on('spriteflip', id => {

@@ -34,10 +34,11 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 
         //GROUPS
-        this.enemies = this.add.group()
         this.platforms = this.physics.add.staticGroup()
+
         this.movableObjects = this.add.group()
         this.gameObjects = this.add.group()
+        this.enemies = this.add.group()
         this.platformers = this.add.group()
 
 
@@ -88,9 +89,8 @@ export default class GameScene extends Phaser.Scene {
             this.foregroundColor
         )
 
-        //  ENEMY FACTORY
-        this.enemyFactory.on('enemyinfomulti', enemies => {
-            Messenger.socket.emit('enemiescreated', enemies)
+        this.enemyGenerator.on('enemycreated', enemy => {
+            Messenger.socket.emit('enemycreated', enemy)
         })
 
         this.runner.on('killed', () => {
@@ -179,7 +179,7 @@ export default class GameScene extends Phaser.Scene {
         })
         this.movableObjects.getChildren().forEach(go => {
             const scx = Display.gamingArea.scaleX
-            const scy = Display.scaleY
+            const scy = Display.gamingArea.scaleY
 
             let x = Math.floor(go.x)
             let y = Math.floor(go.y)

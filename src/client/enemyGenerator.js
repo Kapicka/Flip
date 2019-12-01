@@ -1,31 +1,76 @@
-import GameInfo from './gameInfo'
-import EnemyFactory from './enemyFactory'
 import Display from './display';
+import GameSprite from './gameSprites/gameSprite'
+import FlyingEnemy from './gameSprites/flyingEnemy'
+import JumpingEnemy from './gameSprites/jumpingEnemy'
 import getScenePositions from "./positions";
 import { EventEmitter } from 'events';
+
+const runningEnemies = ['deamon', 'duck', 'shaolin', 'pig', 'dog']
+const jumpingEnemies = ['frog']
+const flyingEnemies = ['bird']
+const enemyTypes = { running: runningEnemies, jumping: jumpingEnemies, flying: flyingEnemies }
+const enemyScale = 5.3 * Display.scaleX
+
 
 
 export default class EnemyGenerator extends EventEmitter {
     constructor(scene) {
         super()
-        let scx = Display.scaleX
+        const scx = Display.gamingArea.scaleX
+        const scy = Display.gamingArea.scaleY
+        const w = Display.width
         let velocity = -250 * scx
+        let enemyScale = 5 * scx
+        let id = 0
+
+        this.createEnemy = function (enm) {
+            let x = enm.x * scx
+            let y = enm.y * scy
+            let enemy
+            let character
+
+            character = getRandomCharacter(jumpingEnemies)
+            if (enm.type === 'running') {
+                character = getRandomCharacter(runningEnemies)
+                enemy = new GameSprite(scene, x, y, character, 'run', true)
+                scene.platformers.add(enemy)
+            }
+            if (enm.type === 'jumping') {
+                character = getRandomCharacter(jumpingEnemies)
+                enemy = new JumpingEnemy(scene, x, y, character, scene.platforms)
+            }
+            if (enm.type === 'flying') {
+                character = getRandomCharacter(flyingEnemies)
+                enemy = new FlyingEnemy(scene, x, y, character, 500)
+            }
+
+            enemy.id = id++
+            scene.enemies.add(enemy)
+            scene.gameObjects.add(enemy)
+            scene.movableObjects.add(enemy)
+            enemy.setScale(enemyScale)
+                .setVelocityX(velocity)
+                .setAnim(enemy.anim)
+            this.emit('enemycreated', { x: enm.x, y: enm.y, character: character, id: enemy.id })
+        }
 
         this.generateEnemy = function () {
             if (scene.enemies.getChildren().length < 2) {
-                let comboIndex = Math.floor(Math.random() * combos.length)
-                let combo = combos[comboIndex]
-                scene.enemyFactory.createFromListPhysics(combo, velocity)
+                let configIndex = Math.floor(Math.random() * configs.length)
+                configs[configIndex].forEach(enm => this.createEnemy(enm))
                 velocity -= 5
-                this.emit('enemies', comboIndex)
             }
-
         }
     }
 
 }
-let combos = [
-    //combo1
+
+function getRandomCharacter(characters) {
+    let characterNumber = Math.floor(Math.random() * characters.length)
+    return characters[characterNumber]
+}
+let configs = [
+    //config1
     [
         {
             type: 'flying',
@@ -49,7 +94,7 @@ let combos = [
         },
 
     ],
-    //combo2
+    //config2
     [
         {
             type: 'flying',
@@ -88,7 +133,7 @@ let combos = [
         },
 
     ],
-    //combo3
+    //config3
     [
         {
             type: 'running',
@@ -103,7 +148,7 @@ let combos = [
 
 
     ],
-    //combo4
+    //config4
     [
         {
             type: 'running',
@@ -118,7 +163,7 @@ let combos = [
 
 
     ],
-    //combo9
+    //9
     [
         {
             type: 'running',
@@ -164,3 +209,8 @@ let combos = [
     ],
 
 ]
+
+configs = configs.map(c => c.map(o => {
+    o.x = o.x + 640
+    return o
+}))
