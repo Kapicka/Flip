@@ -1,5 +1,4 @@
 const io = require('socket.io-client')
-// const root = 'http://fliq.herokuapp.com/'
 const host = location.host
 const root = 'http://' + host + '/'
 console.log('root', root)
@@ -86,8 +85,6 @@ function addGame(game, mode) {
 }
 
 module.exports = Messenger
-
-
 
 
 

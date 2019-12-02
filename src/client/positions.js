@@ -177,7 +177,7 @@ function getDisconnectScenePosition(scene) {
         mainTextScale: 6 * scx,
 
         secondaryTextX: x + 262,
-        secondaryTextY: 180 * scy,
+        secondaryTextY: 250 * scy,
         secondaryTextScale: 4 * scx,
 
 

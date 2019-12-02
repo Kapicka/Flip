@@ -38,27 +38,34 @@ export default class DisconnectScene extends Phaser.Scene {
 
         if (data.subject === 'player') {
             mainText = '   PLAYER 2~DISCONNECTED'
-            secondaryText = 'NEW GAME?'
+            secondaryText = 'NEW GAME'
         }
 
         new Textt(this, p.mainTextX, p.mainTextY, mainText, this.foregroundColor, p.mainTextScale)
             .centerX()
-        let second = new Textt(this, p.secondaryTextX, p.secondaryTextY, secondaryText, this.foregroundColor, p.secondaryTextScale)
-            .centerX()
 
-        if (data.subject === 'player') {
-            second.setInteractive()
-            second.on('pointerdown', () => {
-                GameInfo.score = 0
-                GameInfo.players.remotePlayer = undefined
-                this.scene.start('waitingScene')
-                this.scene.stop('disconnectScene')
-            })
-            second.centerX()
 
+        const newGame = () => {
+            GameInfo.score = 0
+            GameInfo.players.remotePlayer = undefined
+            this.scene.start('waitingScene')
+            this.scene.stop('disconnectScene')
+        }
+
+        let config = {
+            x: p.secondaryTextX,
+            y: p.secondaryTextY,
+            color: this.foregroundColor,
+            scale: p.secondaryTextScale,
+            mobile: Display.mobile,
+            items: [{ text: 'NEW GAME', action: newGame }]
 
         }
 
+        const second = new TextMenu(this, config)
+
+        // let second = new Textt(this, p.secondaryTextX, p.secondaryTextY, secondaryText, this.foregroundColor, p.secondaryTextScale)
+        //     .centerX()
 
 
         let homeButtonScale = 4 * Display.scaleX
