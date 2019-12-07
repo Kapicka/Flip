@@ -150,7 +150,7 @@ function getTutorialScenePositions(scene) {
         mainTextX: x + cx,
         mainTextScale: 3 * scx,
 
-        turnTextX: x + cx + 20 * scx,
+        turnTextX: x + cx + 15 * scx,
         turnTextY: cy + 30 * scy
 
 

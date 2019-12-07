@@ -245,6 +245,10 @@ export default class TutorialScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.runner.y > this.platform.y + this.platform.height) {
+            this.runner.setY(this.runner.pivotY)
+            this.runner.setVelocityY(0)
+        }
 
         this.enemies.getChildren().forEach((e, i) => {
             if (e.x < this.runner.x) {
@@ -409,7 +413,7 @@ function createEnemy(scene, enm) {
     let x = enm.x * scx
     let y = enm.y * scy
     let enemy
-    let enemyScale = 5*scx
+    let enemyScale = 5 * scx
     let character
 
     if (enm.type === 'running') {

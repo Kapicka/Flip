@@ -145,6 +145,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     update() {
+        if (this.runner.y > this.platform.y + this.platform.height) {
+            this.runner.setY(this.runner.pivotY)
+            this.runner.setVelocityY(0)
+        }
         this.enemyGenerator.generateEnemy()
         this.enemies.getChildren().forEach((e, i) => {
             if (e.x < this.runner.x && this.runner.currentState.name !== 'hitState') {

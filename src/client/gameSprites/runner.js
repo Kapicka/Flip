@@ -54,7 +54,7 @@ function States(runner, scene) {
             runner.play('dudehit' + scene.foregroundColor)
             runner.setSize()
             runner.setY(runner.pivotY)
-            scene.time.delayedCall(500, () => {
+            scene.time.delayedCall(100, () => {
                 runner.anim = 'run'
                 runner.play('dude' + runner.anim + scene.foregroundColor)
                 runner.setSize()

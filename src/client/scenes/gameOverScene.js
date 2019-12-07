@@ -107,7 +107,9 @@ export default class GameOverScene extends Phaser.Scene {
 
             if (GameInfo.mode === 'multi') {
                 bg = GameInfo.players.remotePlayer.color
+                if (bg === fg) { bg = ColorManager.getRandomExcept(fg) }
             }
+
             this.scene.start('highScoreScene', {
                 fg: fg,
                 bg: bg,
@@ -144,6 +146,7 @@ export default class GameOverScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-DOWN', () => textMenu.down())
         this.input.keyboard.on('keydown-UP', () => textMenu.up())
         this.input.keyboard.on('keydown-SPACE', () => textMenu.submit())
+        this.input.keyboard.on('keydown-ENTER', () => textMenu.submit())
 
         let homeButtonX = 30 * Display.scaleX
         let homeButtonY = 30 * Display.scaleX

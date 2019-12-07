@@ -16,53 +16,64 @@ import Display from './display'
 import Phaser from 'phaser'
 
 
-
-
-
-
-let scenes = []
-scenes.push(
-    BootScene,
-    DisconnectScene,
-    HighScoreScene,
-    EnterNameScene,
-    FirstScene,
-    MenuScene,
-    TutorialScene,
-    GameOverScene,
-    GameScene,
-    SingleGameScene,
-    WaitingScene,
-    DummyGameScene,
-
-)
-
-const canvasWidth = 640
-const canvasHeight = 360
-Display.init(canvasWidth, canvasHeight)
-
-const gravity = Display.scaleY * 1300
-let scaleOption = Phaser.Scale.FIT
-if (Display.mobile) {
-    scaleOption = Phaser.Scale.NONE
+if (window.innerHeight > window.innerWidth) {
+    document.getElementById("rotateScreen").style.visibility = "visible"
+    window.addEventListener('orientationchange', () => {
+        initGame()
+        window.removeEventListener('orientationchange', initGame)
+    })
+}
+else {
+    initGame()
 }
 
-const config = {
-    type: Phaser.WEBGL,
-    width: Display.width,
-    height: Display.height,
-    scale: {
-        mode: scaleOption
-    },
-    pixelArt: true,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            debug: false,
-            gravity: { y: gravity }
-        }
-    },
-    scene: scenes
-}
 
-let game = new Phaser.Game(config)
+function initGame() {
+    let scenes = []
+    scenes.push(
+        BootScene,
+        DisconnectScene,
+        HighScoreScene,
+        EnterNameScene,
+        FirstScene,
+        MenuScene,
+        TutorialScene,
+        GameOverScene,
+        GameScene,
+        SingleGameScene,
+        WaitingScene,
+        DummyGameScene,
+
+    )
+    const canvasWidth = 640
+    const canvasHeight = 360
+    Display.init(canvasWidth, canvasHeight)
+
+    const gravity = Display.scaleY * 1300
+    let scaleOption = Phaser.Scale.FIT
+    if (Display.mobile) {
+        scaleOption = Phaser.Scale.NONE
+    }
+
+    const config = {
+        type: Phaser.WEBGL,
+        width: Display.width,
+        height: Display.height,
+        scale: {
+            mode: scaleOption
+        },
+        pixelArt: true,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                debug: false,
+                gravity: { y: gravity }
+            }
+        },
+        scene: scenes
+    }
+
+    let game = new Phaser.Game(config)
+    console.log('piko hero tripipipip');
+
+}

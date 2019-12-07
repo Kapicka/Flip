@@ -115,27 +115,34 @@ export default class EnterNameScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-J', keyEntry.moveDown)
         this.input.keyboard.on('keydown-K', keyEntry.moveUp)
-        this.input.keyboard.on('keydown-L', keyEntry.moveLeft)
-        this.input.keyboard.on('keydown-H', keyEntry.moveRight)
+        this.input.keyboard.on('keydown-L', keyEntry.moveRight)
+        this.input.keyboard.on('keydown-H', keyEntry.moveLeft)
         this.input.keyboard.on('keydown-DOWN', keyEntry.moveDown)
         this.input.keyboard.on('keydown-UP', keyEntry.moveUp)
         this.input.keyboard.on('keydown-RIGHT', keyEntry.moveLeft)
         this.input.keyboard.on('keydown-LEFT', keyEntry.moveRight)
         this.input.keyboard.on('keydown-SPACE', keyEntry.submit)
+        this.input.keyboard.on('keydown-ENTER', keyEntry.submit)
 
         let homeButtonX = 30 * Display.scaleX
         let homeButtonY = 30 * Display.scaleX
         let homeButtonScale = 4 * Display.scaleX
+
+
+
         this.homeButton = this.add.sprite(homeButtonX, homeButtonY, 'buttons', 'homeButton' + this.foregroundColor)
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
                 this.scene.start('firstScene')
+                this.scene.stop('enterNameScene')
 
             })
-
     }
+}
 
 
-
+function startFirstScene() {
+    this.scene.start('firstScene')
+    this.scene.stop('enterNameScene')
 }

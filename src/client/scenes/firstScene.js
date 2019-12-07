@@ -16,7 +16,6 @@ export default class FirstScene extends Phaser.Scene {
 
         this.backgroundColor = ColorManager.getRandomExcept('rgb(255,255,255)')
         this.cameras.main.setBackgroundColor(this.backgroundColor)
-        this.scale.lockOrientation('landscape')
 
         const p = getFirstScenePositions(this)
 
@@ -46,9 +45,7 @@ export default class FirstScene extends Phaser.Scene {
 
         const startHighScores = () => {
             const fg = 'rgb(255,255,255)'
-            const colors = ColorManager.getColors().filter(c => c != fg)
-            const index = Math.floor(Math.random() * colors.length)
-            const bg = colors[index]
+            const bg = ColorManager.getRandomExcept('fg')
 
             this.scene.start('highScoreScene', {
                 fg: fg,
@@ -79,9 +76,10 @@ export default class FirstScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-J', () => textMenu.down())
         this.input.keyboard.on('keydown-K', () => textMenu.up())
-        this.input.keyboard.on('keydown-UP', () => textMenu.down())
-        this.input.keyboard.on('keydown-DOWN', () => textMenu.up())
+        this.input.keyboard.on('keydown-UP', () => textMenu.up())
+        this.input.keyboard.on('keydown-DOWN', () => textMenu.down())
         this.input.keyboard.on('keydown-SPACE', () => textMenu.submit())
+        this.input.keyboard.on('keydown-ENTER', () => textMenu.submit())
 
     }
 

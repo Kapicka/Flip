@@ -17,7 +17,6 @@ export default class HighScoreScene extends Phaser.Scene {
     create(data) {
         createAnimations(this)
         const p = getHighScoreScenePositions(this)
-
         console.log(data, 'data')
         this.foregroundColor = data.fg
         this.backgroundColor = data.bg

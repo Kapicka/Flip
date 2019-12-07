@@ -190,12 +190,13 @@ export default class MenuScene extends Phaser.Scene {
             this.platform.setFrame('dot' + this.fg)
             this.dude.play('duderun' + this.fg)
 
-            this.input.keyboard.on('keydown-SPACE', submit)
-            this.input.keyboard.on('keydown-H', this.prev)
-            this.input.keyboard.on('keydown-L', this.next)
-            this.input.keyboard.on('keydown-LEFT', this.prev)
-            this.input.keyboard.on('keydown-RIGHT', this.next)
         }
+        this.input.keyboard.on('keydown-SPACE', submit)
+        this.input.keyboard.on('keydown-ENTER', submit)
+        this.input.keyboard.on('keydown-H', this.prev)
+        this.input.keyboard.on('keydown-L', this.next)
+        this.input.keyboard.on('keydown-LEFT', this.prev)
+        this.input.keyboard.on('keydown-RIGHT', this.next)
     }
 
     update(t, delta) {
