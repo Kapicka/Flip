@@ -1,5 +1,9 @@
 import createAnimations from "../animations";
 import Messenger from '../messenger'
+/**
+ * První scéna hry, v této scéně jsou načteny externí soubory, které 
+ * jsou dále ve hře použity
+ */
 export default class BootScene extends Phaser.Scene {
     constructor() {
         super({ key: 'bootScene' })

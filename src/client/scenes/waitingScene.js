@@ -96,10 +96,8 @@ export default class WaitingScene extends Phaser.Scene {
                 GameInfo.gameId = room.id
                 GameInfo.players.remotePlayer = remotePlayer
                 if (remotePlayer.color === GameInfo.players.localPlayer.color) {
-                    remotePlayer.color = ColorManager.getRandomExcept(GameInfo.players.localPlayer.color)
+                    GameInfo.players.remotePlayer.color = ColorManager.getRandomExcept(GameInfo.players.localPlayer.color)
                 }
-                console.log('ajaj', GameInfo.master)
-
                 if (GameInfo.master) {
                     this.scene.start('gameScene')
                     this.scene.stop('waitingScene')

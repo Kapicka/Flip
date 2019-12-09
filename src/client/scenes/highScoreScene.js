@@ -5,6 +5,7 @@ import Textt from '../textt'
 import Display from '../display'
 import Messenger from '../messenger'
 import HighScore from "../highScore";
+import ColorManager from "../colorManager";
 
 
 
@@ -19,7 +20,10 @@ export default class HighScoreScene extends Phaser.Scene {
         const p = getHighScoreScenePositions(this)
         console.log(data, 'data')
         this.foregroundColor = data.fg
-        this.backgroundColor = data.bg
+        // this.backgroundColor = data.bg
+        this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
+
+
         this.cameras.main.setBackgroundColor(this.backgroundColor)
         this.currentShowCase = undefined
 

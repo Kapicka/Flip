@@ -1,5 +1,4 @@
 import EnemyGenerator from '../enemyGenerator'
-import EnemyFactory from "../enemyFactory";
 import Runner from '../gameSprites/runner'
 import GameInfo from '../gameInfo'
 import Lives from '../lives'
@@ -11,7 +10,9 @@ import GameSprite from '../gameSprites/gameSprite'
 import { getGameScenePositions } from "../positions";
 import Display from '../display';
 
-
+/**
+ * Herní scéna s logikou pro hru dvou hráčů. 
+ */
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
@@ -20,7 +21,6 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         const p = getGameScenePositions(this)
-        this.enemyFactory = new EnemyFactory(this)
         this.enemyGenerator = new EnemyGenerator(this)
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
@@ -148,11 +148,6 @@ export default class GameScene extends Phaser.Scene {
         }
 
 
-        this.input.keyboard.on('keydown-A', () => {
-            this.enemyFactory.createRandomEnemy(-10)
-
-        })
-        this.input.keyboard.on('keydown-A', () => { this.enemyFactory.createRandomEnemy(-200) })
         this.input.keyboard.on('keydown-UP', () => this.action('jump'))
         this.input.keyboard.on('keydown-DOWN', () => this.action('slide'))
         this.swipeController.on('up', () => this.action('jump'))

@@ -1,5 +1,12 @@
 import GameSprite from "./gameSprite";
 import Display from "../display"
+
+
+/**
+ * Runner reprezentuje hlavní postavu hry. 
+ */
+
+
 export default class Runner extends GameSprite {
     constructor(scene, x, y, state) {
         super(scene, x, y, 'dude', 'run', true)

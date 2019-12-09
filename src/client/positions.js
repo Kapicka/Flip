@@ -1,5 +1,8 @@
 import Display from "./display";
 
+/**
+ * Tento modul obsahuje funkce pro získání pozic objektů ve hře.
+ */
 function getGameScenePositions(scene) {
     let w = Display.gamingArea.width
     let h = Display.gamingArea.height

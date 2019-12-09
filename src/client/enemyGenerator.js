@@ -11,7 +11,10 @@ const flyingEnemies = ['bird']
 const enemyTypes = { running: runningEnemies, jumping: jumpingEnemies, flying: flyingEnemies }
 const enemyScale = 5.3 * Display.scaleX
 
-
+/**
+ * Enemy generator je ve hře zodpovědný za tvorbu nepřátelských objektů 
+ * na základě náhodně vybrané konfigurace
+ */
 
 export default class EnemyGenerator extends EventEmitter {
     constructor(scene) {

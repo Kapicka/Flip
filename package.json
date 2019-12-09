@@ -9,7 +9,7 @@
   "main": "src/client/game.js",
   "scripts": {
     "start": "cd src/server;node server.js",
-    "db": "mongod --dbpath mongodb/data/",
+    "db": "mongod --dbpath data",
     "build": "parcel build src/client/index.html",
     "app": "cd src/server;node serverProd.js",
     "test": "echo \"Error: no test specified\" && exit 1"

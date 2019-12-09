@@ -1,6 +1,3 @@
-
-import EnemyFactory from '../enemyFactory'
-import PlatformFactory from '../platformFactory'
 import GameSprite from '../gameSprites/gameSprite'
 import FlyingEnemy from '../gameSprites/flyingEnemy'
 import Runner from '../gameSprites/runner'
@@ -24,7 +21,6 @@ export default class TutorialScene extends Phaser.Scene {
         super({ key: 'tutorialScene' })
     }
     init() {
-        EnemyFactory.init(this)
         PlatformFactory.init(this)
         Controller.init(this)
     }
@@ -43,8 +39,8 @@ export default class TutorialScene extends Phaser.Scene {
                 y: 217
             },
         ].map(e => {
-            e.x = Display.scaleX * e.x + Display.width
-            e.y = Display.scaleY * e.y
+            e.x = Display.gamingArea.scaleX * e.x + Display.width
+            e.y = Display.gamingArea.scaleY * e.y
             return e
 
         })

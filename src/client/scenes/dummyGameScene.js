@@ -7,7 +7,6 @@ import SwipeController from '../swipeController'
 import { getGameScenePositions } from "../positions";
 import Lives from '../lives'
 import Score from '../score'
-import EnemyFactory from '../enemyFactory';
 
 
 export default class DummyGameScene extends Phaser.Scene {
