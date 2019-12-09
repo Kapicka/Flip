@@ -20,6 +20,7 @@ To run game in developer mode run:
 ```
 npm start
 ```
+The game is then available on localhost:8081
 ###  Build and run for production
 Build the project with:
 ```
