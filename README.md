@@ -13,14 +13,14 @@ To start database run:
 ```
 
 ###  Developer mode
-To run game in developer mode run
+To run game in developer mode run:
 ```
 npm start
 ```
 ###  Build and run for production
-Build the project with 
+Build the project with:
 ```
-npm run build  
+npm run build 
 ```
 start game: 
 ```
