@@ -6,10 +6,13 @@ MongoDB database
 
 ### Installing
 In order to install all depencies run:
-```npm install 
+```
+npm install 
 ```
 To start database run:
-```npm run db 
+```
+npm run db 
+
 ```
 
 ###  Developer mode
