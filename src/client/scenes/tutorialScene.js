@@ -21,7 +21,6 @@ export default class TutorialScene extends Phaser.Scene {
         super({ key: 'tutorialScene' })
     }
     init() {
-        PlatformFactory.init(this)
         Controller.init(this)
     }
 
@@ -45,7 +44,6 @@ export default class TutorialScene extends Phaser.Scene {
 
         })
         const p = getTutorialScenePositions(this)
-        this.enemyFactory = new EnemyFactory(this)
         this.enemyGenerator = new EnemyGenerator(this)
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = ColorManager.getRandomColor()
@@ -171,7 +169,6 @@ export default class TutorialScene extends Phaser.Scene {
 
         this.physics.add.overlap(this.runner, this.enemies, (dude, enemy) => {
             this.runner.hit()
-            console.log('hhhh')
             this.enemies.remove(enemy)
             enemy.flipY = true
         })
@@ -192,11 +189,6 @@ export default class TutorialScene extends Phaser.Scene {
             stop: () => { this.generator.enabled = false }
         }
 
-        this.enemyFactory.on('enemycreated', enemy => {
-            this.movableObjects.add(enemy)
-            this.gameObjects.add(enemy)
-            this.enemies.add(enemy)
-        })
 
         const flipColor = () => {
 
@@ -330,7 +322,6 @@ class Stages {
             },
             scored: function () {
                 this.count++
-                console.log('count stage5', this.count)
                 if (this.count > 2) {
                     scene.generator.stop()
                     scene.next(this.nextStage)
