@@ -1,5 +1,5 @@
 const express = require('express')
-const initMessenger = require('./MessengerServer')
+const initMessenger = require('./messengerServer')
 const app = express()
 const server = require('http').Server(app)
 const db = require('./Db')
