@@ -2,8 +2,7 @@ import EnemyGenerator from '../EnemyGenerator'
 import Runner from '../gameSprites/Runner'
 import GameInfo from '../GameInfo'
 import Lives from '../Lives'
-import Score from '../score'
-import Messenger from '../Messenger'
+import Score from '../Score'
 import SwipeController from '../SwipeController'
 import ColorManager from "../ColorManager";
 import { getGameScenePositions } from "../Positions";

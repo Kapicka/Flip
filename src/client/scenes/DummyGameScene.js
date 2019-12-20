@@ -6,7 +6,7 @@ import GameSprite from "../gameSprites/GameSprite";
 import SwipeController from '../SwipeController'
 import {getGameScenePositions} from "../Positions";
 import Lives from '../Lives'
-import Score from '../score'
+import Score from '../Score'
 
 
 export default class DummyGameScene extends Phaser.Scene {
