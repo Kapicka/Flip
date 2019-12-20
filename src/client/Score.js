@@ -1,4 +1,4 @@
-import Display from "./display";
+import Display from "./Display";
 
 export default class Score {
     constructor(scene, x, y, size, color) {

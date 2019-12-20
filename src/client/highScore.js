@@ -1,4 +1,4 @@
-import Textt from './textt'
+import Textt from './Textt'
 
 class HighScore {
     constructor(scene, records, x, y, width, color, fontScale, rows, mode) {

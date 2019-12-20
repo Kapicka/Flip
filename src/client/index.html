@@ -14,12 +14,19 @@
     <title>Flip Game</title>
     <style>
         canvas {
+
             position: fixed;
             left: 0;
             top: 0;
+
         }
 
-        #rotateScreen {
+        #canvas-container{
+            width: 100%;
+            text-align: center;
+        }
+
+        #rotate-screen {
             position: absolute;
             font-size: 30px;
             top: 0;
@@ -48,7 +55,11 @@
 </head>
 
 <body>
-    <div id="rotateScreen">
+
+<div id="canvas-container">
+
+</div>
+    <div id="rotate-screen">
         <div id="mainText">Rotate me...</div>
         <img id="man" src="assets/dude.png">
         <!--    <object id="dude" data="assets/dude.svg" type="image/svg+xml"></object>-->

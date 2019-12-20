@@ -1,4 +1,4 @@
-import ColorManager from "./colorManager";
+import ColorManager from "./ColorManager";
 const barvy = ColorManager.getColors()
 const enemies = ['dude', 'shaolin', 'deamon', 'bird', 'dog', 'duck', 'pig']
 

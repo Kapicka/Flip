@@ -1,23 +1,19 @@
 
-import GameScene from './scenes/gameScene'
-import EnterNameScene from './scenes/enterNameScene'
-import DummyGameScene from './scenes/dummyGameScene'
-import BootScene from './scenes/bootScene'
-import MenuScene from './scenes/menuScene'
-import WaitingScene from './scenes/waitingScene';
-import GameOverScene from './scenes/gameOverScene';
-import HighScoreScene from './scenes/highScoreScene';
-import SingleGameScene from "./scenes/singleGameScene";
+import GameScene from './scenes/GameScene'
+import EnterNameScene from './scenes/EnterNameScene'
+import DummyGameScene from './scenes/DummyGameScene'
+import BootScene from './scenes/BootScene'
+import MenuScene from './scenes/MenuScene'
+import WaitingScene from './scenes/WaitingScene';
+import GameOverScene from './scenes/GameOverScene';
+import HighScoreScene from './scenes/HighScoreScene';
+import SingleGameScene from "./scenes/SingleGameScene";
 
-import TutorialScene from "./scenes/tutorialScene";
-import DisconnectScene from "./scenes/disconnectScene"
-import FirstScene from './scenes/firstScene';
-import Display from './display'
+import TutorialScene from "./scenes/TutorialScene";
+import DisconnectScene from "./scenes/DisconnectScene"
+import FirstScene from './scenes/FirstScene';
+import Display from './Display'
 import Phaser from 'phaser'
-
-
-
-
 
 
 let scenes = []
@@ -50,6 +46,7 @@ if (Display.mobile) {
 const config = {
     type: Phaser.WEBGL,
     width: Display.width,
+    parent:'canvas-container',
     height: Display.height,
     scale: {
         mode: scaleOption
