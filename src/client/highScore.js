@@ -72,14 +72,14 @@ class HighScore {
         let a, b, c, d
         if (this.mode === 'multi') {
             a = new Textt(this.scene, x + 0 * recordMarginX, this.y + recordMarginY, 'RANK', this.color, this.fontScale)
-            b = new Textt(this.scene, x + 1 * recordMarginX, this.y + recordMarginY, "PLAYER1", this.color, this.fontScale)
+            b = new Textt(this.scene, x + 1 * recordMarginX, this.y + recordMarginY, 'PLAYER1', this.color, this.fontScale)
             c = new Textt(this.scene, x + 2 * recordMarginX, this.y + recordMarginY, 'PLAYER2', this.color, this.fontScale)
             d = new Textt(this.scene, x + 3 * recordMarginX, this.y + recordMarginY, 'SCORE', this.color, this.fontScale)
             this.createdGroups['headers'].push(a, b, c, d)
         }
         if (this.mode === 'single') {
             a = new Textt(this.scene, x + 0 * recordMarginX, this.y + recordMarginY, 'RANK', this.color, this.fontScale)
-            b = new Textt(this.scene, x + 1 * recordMarginX, this.y + recordMarginY, "PLAYER", this.color, this.fontScale)
+            b = new Textt(this.scene, x + 1 * recordMarginX, this.y + recordMarginY, 'PLAYER', this.color, this.fontScale)
             c = new Textt(this.scene, x + 2 * recordMarginX, this.y + recordMarginY, 'SCORE', this.color, this.fontScale)
             this.createdGroups['headers'].push(a, b, c)
         }

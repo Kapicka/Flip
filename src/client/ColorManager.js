@@ -17,12 +17,11 @@ const ColorManager = {
     },
     getRandomColor: () => {
         let index = Math.floor(Math.random() * colors.length)
-        if (index === colors.length) index--
         return colors[index]
 
     },
     getRandomExcept: (color) => {
-        const index = Math.floor(Math.random() * colors.length - 1)
+        const index = Math.floor(Math.random() * (colors.length - 1))
         return colors.filter(c => c !== color)[index]
 
     },

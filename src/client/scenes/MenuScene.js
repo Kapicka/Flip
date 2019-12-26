@@ -7,7 +7,6 @@ import Textt from '../Textt'
 
 
 let offsetY
-
 let rotated = false
 let colorIndex = 0
 let time = 0
@@ -84,6 +83,7 @@ export default class MenuScene extends Phaser.Scene {
 
 
         this.cameras.main.setBackgroundColor(this.bg)
+        document.body.style.backgroundColor = this.bg
 
 
         //MAIN TEXT
@@ -182,6 +182,7 @@ export default class MenuScene extends Phaser.Scene {
             }
 
             this.cameras.main.setBackgroundColor(this.bg)
+            document.body.style.backgroundColor = this.bg
             this.playButton.setFrame('playButton' + this.fg)
             this.homeButton.setFrame('homeButton' + this.fg)
             this.arrowRight.setFrame('arrow' + this.fg)
@@ -201,10 +202,10 @@ export default class MenuScene extends Phaser.Scene {
 
     update(t, delta) {
         time++
-        if (time % 250 === 0) {
-            let index = Math.floor((colors.length) * Math.random())
-            this.bg = colors.filter(c => c !== this.fg)[index]
+        if (time % 250 === 0) {         
+            this.bg = ColorManager.getRandomExcept(this.fg)
             this.cameras.main.setBackgroundColor(this.bg)
+            document.body.style.backgroundColor = this.bg
 
 
         }

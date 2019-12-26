@@ -4,7 +4,7 @@ import Runner from '../gameSprites/Runner'
 import Textt from '../Textt'
 import Display from '../Display'
 import Controller from '../SwipeController'
-import ColorManager from "../ColorManager";
+import ColorManager from '../ColorManager';
 import EnemyGenerator from '../EnemyGenerator'
 import SwipeController from '../SwipeController'
 import { getTutorialScenePositions } from '../Positions'
@@ -49,6 +49,7 @@ export default class TutorialScene extends Phaser.Scene {
         this.foregroundColor = ColorManager.getRandomColor()
         this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         this.cameras.main.setBackgroundColor(this.backgroundColor)
+        document.body.style.backgroundColor = this.backgroundColor  
 
 
 
@@ -206,6 +207,7 @@ export default class TutorialScene extends Phaser.Scene {
                 .forEach(go => go.flipColor(this.foregroundColor))
 
             this.cameras.main.setBackgroundColor(this.backgroundColor)
+            document.body.style.backgroundColor = this.backgroundColor  
         }
         let i = 0
 

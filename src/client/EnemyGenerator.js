@@ -2,7 +2,7 @@ import Display from './Display';
 import GameSprite from './gameSprites/GameSprite'
 import FlyingEnemy from './gameSprites/FlyingEnemy'
 import JumpingEnemy from './gameSprites/JumpingEnemy'
-import getScenePositions from "./Positions";
+import getScenePositions from './Positions';
 import { EventEmitter } from 'events';
 
 const runningEnemies = ['deamon', 'duck', 'shaolin', 'pig', 'dog']
@@ -92,7 +92,7 @@ let configs = [
         },
         {
             type: 'running',
-            x: 555,
+            x: 630,
             y: 229
         },
 

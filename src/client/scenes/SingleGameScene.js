@@ -4,9 +4,8 @@ import GameInfo from '../GameInfo'
 import Lives from '../Lives'
 import Score from '../Score'
 import SwipeController from '../SwipeController'
-import ColorManager from "../ColorManager";
-import { getGameScenePositions } from "../Positions";
-import FlyingEnemy from '../gameSprites/FlyingEnemy';
+import ColorManager from '../ColorManager';
+import { getGameScenePositions } from '../Positions';
 
 
 export default class GameScene extends Phaser.Scene {
@@ -20,6 +19,7 @@ export default class GameScene extends Phaser.Scene {
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
         this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
+        document.body.style.backgroundColor = this.backgroundColor
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 
 
@@ -58,10 +58,7 @@ export default class GameScene extends Phaser.Scene {
 
 
 
-
-
         this.runner.on('hit', () => this.lives.removeLive())
-
         this.runner.on('killed', () => {
             console.log('this is single game scene vole');
             console.log('this je ', this, 'papousku');
@@ -110,6 +107,7 @@ export default class GameScene extends Phaser.Scene {
         this.flipColor = function () {
             let temp = this.backgroundColor
             this.backgroundColor = this.foregroundColor
+            document.body.style.backgroundColor = this.backgroundColor
             this.foregroundColor = temp
 
             this.gameObjects

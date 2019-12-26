@@ -1,10 +1,10 @@
-import createAnimations from "../animations";
-import GameInfo from "../GameInfo";
+import createAnimations from '../animations';
+import GameInfo from '../GameInfo';
 import { getDisconnectScenePosition } from '../Positions'
 import Textt from '../Textt'
 import Display from '../Display'
-import TextMenu from "../TextMenu";
-import ColorManager from "../ColorManager";
+import TextMenu from '../TextMenu';
+import ColorManager from '../ColorManager';
 
 
 
@@ -27,6 +27,7 @@ export default class DisconnectScene extends Phaser.Scene {
             this.foregroundColor = ColorManager.getRandomColor()
             this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         }
+        document.body.style.backgroundColor = this.backgroundColor   
 
         this.cameras.main.setBackgroundColor(this.backgroundColor)
 

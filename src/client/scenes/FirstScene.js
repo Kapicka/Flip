@@ -1,7 +1,7 @@
 import Textt from '../Textt'
 import Display from '../Display';
 import ColorManager from '../ColorManager';
-import GameInfo from "../GameInfo";
+import GameInfo from '../GameInfo';
 import TextMenu from '../TextMenu';
 import { getFirstScenePositions } from '../Positions'
 
@@ -12,22 +12,23 @@ export default class FirstScene extends Phaser.Scene {
         super({ key: 'firstScene' })
     }
     create() {
-
+        let offset = -25 * Display.gamingArea.scaleY
         this.backgroundColor = ColorManager.getRandomExcept('rgb(255,255,255)')
         this.cameras.main.setBackgroundColor(this.backgroundColor)
+        document.body.style.backgroundColor = this.backgroundColor
 
         const p = getFirstScenePositions(this)
 
         //NADPIS
 
-       const mainText =  new Textt(this, p.flX, p.flY, 'FL', "rgb(255,255,255)", p.mainTextScale)
-       const mainImage =  this.add.image(p.iX, p.iY, 'pixelFont', 'lrgb(255,255,255)').setScale(p.mainTextScale, 4 * Display.scaleX)
-       const pText = new Textt(this, p.pX, p.pY, 'P', "rgb(255,255,255)", p.mainTextScale)
+        const mainText = new Textt(this, p.flX, p.flY + offset, 'FL', 'rgb(255,255,255)', p.mainTextScale)
+        const mainImage = this.add.image(p.iX, p.iY + offset, 'pixelFont', 'l').setScale(p.mainTextScale, 4 * Display.scaleX).setTintFill()
+        const pText = new Textt(this, p.pX, p.pY + offset, 'P', 'rgb(255,255,255)', p.mainTextScale)
 
         //RUNNER
-       const runner = this.add.sprite(p.dudeX, p.dudeY, 'sprites', 'dude_run_1rgb(255,255,255)')
+        const runner = this.add.sprite(p.dudeX, p.dudeY + offset, 'sprites', 'dude_run_1rgb(255,255,255)')
             .play('dudejumprgb(255,255,255)')
-            .setScale(5)
+            .setScale(5 * Display.scaleX)
             .setInteractive()
 
 
@@ -42,10 +43,18 @@ export default class FirstScene extends Phaser.Scene {
             this.scene.start('tutorialScene')
             this.scene.sleep()
         }
+        const startHelp = () => {
+            let color = ColorManager.getRandomColor()
+            this.scene.start('helpScene', {
+                bg: color,
+                fg: ColorManager.getRandomExcept(color)
+            })
+            this.scene.sleep()
+        }
 
         const startHighScores = () => {
             const fg = 'rgb(255,255,255)'
-            const bg = ColorManager.getRandomExcept('fg')
+            const bg = ColorManager.getRandomExcept(fg)
 
             this.scene.start('highScoreScene', {
                 fg: fg,
@@ -57,16 +66,17 @@ export default class FirstScene extends Phaser.Scene {
         }
 
         const menuItems = [
-            { text: "1 PLAYER GAME", action: () => startGame('single') },
-            { text: "2 PLAYER GAME", action: () => startGame('multi') },
-            { text: "HIGH SCORES", action: startHighScores },
-            { text: "TUTORIAL", action: startTutorial }
+            { text: '1 PLAYER GAME', action: () => startGame('single') },
+            { text: '2 PLAYER GAME', action: () => startGame('multi') },
+            { text: 'HIGH SCORES', action: startHighScores },
+            { text: 'TUTORIAL', action: startTutorial },
+            { text: 'RULES', action: startHelp }
         ]
 
 
         const menuConfig = {
             x: p.menuX,
-            y: p.menuY,
+            y: p.menuY + offset,
             color: 'rgb(255,255,255)',
             scale: p.menu,
             mobile: Display.mobile,
@@ -94,12 +104,9 @@ export default class FirstScene extends Phaser.Scene {
         this.time++
         if (this.time > 900) {
             this.time = 0
-            let randomColor = colors[Math.floor(Math.random() * colors.length - 1)]
-            let randomColor2 = colors[Math.floor(Math.random() * colors.length - 1)]
-            while (randomColor === randomColor2) {
-                randomColor2 = colors[Math.floor(Math.random() * colors.length - 1)]
-            }
+            this.backgroundColor = ColorManager.getRandomExcept('rgb(255,255,255)')
             this.cameras.main.setBackgroundColor(randomColor)
+            document.body.style.backgroundColor = randomColor
         }
     }
 }

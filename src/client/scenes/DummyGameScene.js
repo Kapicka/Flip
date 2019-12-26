@@ -1,17 +1,17 @@
 import ColorManager from '../ColorManager'
 import Messenger from '../Messenger'
-import Display from "../Display";
+import Display from '../Display';
 import GameInfo from '../GameInfo'
-import GameSprite from "../gameSprites/GameSprite";
+import GameSprite from '../gameSprites/GameSprite';
 import SwipeController from '../SwipeController'
-import {getGameScenePositions} from "../Positions";
+import { getGameScenePositions } from '../Positions';
 import Lives from '../Lives'
 import Score from '../Score'
 
 
 export default class DummyGameScene extends Phaser.Scene {
     constructor() {
-        super({key: 'dummyGameScene'})
+        super({ key: 'dummyGameScene' })
     }
 
     create() {
@@ -20,6 +20,7 @@ export default class DummyGameScene extends Phaser.Scene {
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.remotePlayer.color
         this.backgroundColor = GameInfo.players.localPlayer.color
+        document.body.style.backgroundColor = this.backgroundColor
 
         while (this.foregroundColor === this.backgroundColor) {
             this.foregroundColor = ColorManager.getRandomColor()
@@ -92,6 +93,8 @@ export default class DummyGameScene extends Phaser.Scene {
 
             this.lives.flipColor(this.foregroundColor)
             this.cameras.main.setBackgroundColor(this.backgroundColor)
+            document.body.style.backgroundColor = this.backgroundColor
+
         }
 
         this.switchTurn = () => {
@@ -121,12 +124,11 @@ export default class DummyGameScene extends Phaser.Scene {
 }
 
 
-function initSocketEvents(scene) {
+const initSocketEvents = scene => {
     const socket = Messenger.getSocket()
     const scx = Display.gamingArea.scaleX
     const scy = Display.scaleY
     const gscy = Display.gamingArea.scaleY
-
 
     socket.on('enemydestroyd', (id) => {
         scene.gameObjects
@@ -171,13 +173,16 @@ function initSocketEvents(scene) {
                 .find(go => go.id === id)
                 .setFlipY(true)
         })
+
+
+
     Messenger.socket.on('playerdisconnect', () => {
         Messenger.socket.disconnect()
-        scene.scene.start('disconnectScene', {subject: 'player'})
+        scene.scene.start('disconnectScene', { subject: 'player' })
         scene.scene.stop('dummyGameScene')
     })
     Messenger.socket.on('disconnect', () => {
-        scene.scene.start('disconnectScene', {subject: 'server'})
+        scene.scene.start('disconnectScene', { subject: 'server' })
         Messenger.socket.disconnect()
         scene.scene.stop('dummyGameScene')
     })

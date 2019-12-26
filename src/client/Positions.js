@@ -1,4 +1,4 @@
-import Display from "./Display";
+import Display from './Display';
 
 /**
  * Tento modul obsahuje funkce pro získání pozic objektů ve hře.
@@ -56,20 +56,20 @@ function getFirstScenePositions(scene) {
         menu: 4 * scx,
 
         //DUDE POSITION
-        dudeY: 77 * scy,
+        dudeY: 72 * scy,
         dudeX: x + cx + 10 * scx,
 
         flX: x + 210 * scx,
-        flY: 75 * scy,
+        flY: 70 * scy,
 
         iX: x + 338 * scx,
-        iY: 125 * scy,
+        iY: 120 * scy,
 
         pX: x + 390 * scx,
-        pY: 80 * scy,
+        pY: 75 * scy,
 
         menuX: 1 * scx,
-        menuY: 190 * scy
+        menuY: 160 * scy
 
 
     }

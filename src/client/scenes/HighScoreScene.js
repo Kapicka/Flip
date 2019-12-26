@@ -1,15 +1,15 @@
-import createAnimations from "../animations";
-import {getHighScoreScenePositions} from '../Positions'
+import createAnimations from '../animations';
+import { getHighScoreScenePositions } from '../Positions'
 import Textt from '../Textt'
 import Display from '../Display'
 import Messenger from '../Messenger'
-import HighScore from "../highScore";
-import ColorManager from "../ColorManager";
+import HighScore from '../highScore';
+import ColorManager from '../ColorManager';
 
 
 export default class HelpScene extends Phaser.Scene {
     constructor() {
-        super({key: 'highScoreScene'})
+        super({ key: 'highScoreScene' })
     }
 
     create(data) {
@@ -21,6 +21,8 @@ export default class HelpScene extends Phaser.Scene {
 
 
         this.cameras.main.setBackgroundColor(this.backgroundColor)
+        document.body.style.backgroundColor = this.backgroundColor
+
         this.currentShowCase = undefined
 
         this.showcaseSingle = undefined
@@ -79,7 +81,7 @@ export default class HelpScene extends Phaser.Scene {
 
         const rows = 5
 
-        function sortGamesDesc(a, b) {
+        const sortGamesDesc = (a, b) => {
             if (a.score < b.score) {
                 return 1
             }
@@ -87,7 +89,6 @@ export default class HelpScene extends Phaser.Scene {
                 return -1
             }
             return 0
-
         }
 
         const show = (mode) => {
@@ -120,8 +121,8 @@ export default class HelpScene extends Phaser.Scene {
                             this.showcaseMulti.setVisible(true)
                             this.currentShowCase = this.showcaseMulti
                         }).catch(err => {
-                        throw err
-                    })
+                            throw err
+                        })
                 } else {
                     this.showcaseMulti.setVisible(true)
                     this.currentShowCase = this.showcaseMulti
@@ -132,29 +133,29 @@ export default class HelpScene extends Phaser.Scene {
             return new Promise((res, rej) => {
                 Messenger[mode].getGames()
                     .then(games => {
-                            const sortedGames = games.sort(sortGamesDesc)
-                            let rank = data.rank
-                            if (data.rank > 3) {
-                                rank = sortedGames.findIndex(g => g._id === data.id)
-                            }
-                            const highScore = new HighScore(this,
-                                sortedGames,
-                                p.highScoreX,
-                                p.highScoreY,
-                                Display.width,
-                                this.foregroundColor,
-                                3 * Display.gamingArea.scaleY,
-                                rows,
-                                mode)
-                            highScore.createHeaders()
-                            highScore.show(rank)
-
-                            res(highScore)
+                        const sortedGames = games.sort(sortGamesDesc)
+                        let rank = data.rank
+                        if (data.rank > 3) {
+                            rank = sortedGames.findIndex(g => g._id === data.id)
                         }
+                        const highScore = new HighScore(this,
+                            sortedGames,
+                            p.highScoreX,
+                            p.highScoreY,
+                            Display.width,
+                            this.foregroundColor,
+                            3 * Display.gamingArea.scaleY,
+                            rows,
+                            mode)
+                        highScore.createHeaders()
+                        highScore.show(rank)
+
+                        res(highScore)
+                    }
                     ).catch(err => {
-                    this.scene.start('disconnectScene', {subject: 'server'})
-                    rej(err)
-                })
+                        this.scene.start('disconnectScene', { subject: 'server' })
+                        rej(err)
+                    })
             })
 
         }
@@ -180,10 +181,6 @@ export default class HelpScene extends Phaser.Scene {
 
     }
 
-
-    update(t) {
-
-    }
 
 }
 

@@ -1,9 +1,9 @@
-import Textt from "../Textt";
+import Textt from '../Textt';
 import Display from '../Display';
 import GameInfo from '../GameInfo';
-import centerSpriteX from "../utils";
-import ColorManager from "../ColorManager";
-import Messenger from "../Messenger";
+import centerSpriteX from '../utils';
+import ColorManager from '../ColorManager';
+import Messenger from '../Messenger';
 
 
 let time = 0
@@ -46,6 +46,7 @@ export default class WaitingScene extends Phaser.Scene {
         let index = Math.floor(Math.random() * this.colors.length - 1)
         let randomColor = this.colors.filter(c => c !== chosenColor)[index]
         this.cameras.main.setBackgroundColor(randomColor)
+        document.body.style.backgroundColor = randomColor  
 
         //DUDE
         let dude = this.add.sprite(dudeX, dudeY, 'otherSprites', 'dude_stand_0' + chosenColor)
@@ -117,6 +118,7 @@ export default class WaitingScene extends Phaser.Scene {
             let index = Math.floor(Math.random() * this.colors.length - 1)
             let randomColor = this.colors.filter(c => c !== chosenColor)[index]
             this.cameras.main.setBackgroundColor(randomColor)
+            document.body.style.backgroundColor = randomColor  
         }
     }
 }

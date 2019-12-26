@@ -27,7 +27,7 @@ export default class EnterNameScene extends Phaser.Scene {
         const activeColor = ('rgb(198,198,198)')
 
         this.cameras.main.setBackgroundColor(this.backgroudColor)
-
+        document.body.style.backgroundColor = this.backgroudColor  
 
         const keyEntry = new KeyEntry(this,
             0,
@@ -36,8 +36,8 @@ export default class EnterNameScene extends Phaser.Scene {
 
         let imageY = 50 * Display.scaleY
 
-        let name = ""
-        let blinkingText = "ENTER NAME"
+        let name = ''
+        let blinkingText = 'ENTER NAME'
         let blinkingImage = new Textt(this, 0, imageY, blinkingText, this.foregroundColor, 7)
         blinkingImage.setX(Display.width / 2 - blinkingImage.getWidth() / 2)
 
@@ -119,8 +119,8 @@ export default class EnterNameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-H', keyEntry.moveLeft)
         this.input.keyboard.on('keydown-DOWN', keyEntry.moveDown)
         this.input.keyboard.on('keydown-UP', keyEntry.moveUp)
-        this.input.keyboard.on('keydown-RIGHT', keyEntry.moveLeft)
-        this.input.keyboard.on('keydown-LEFT', keyEntry.moveRight)
+        this.input.keyboard.on('keydown-RIGHT', keyEntry.moveRight)
+        this.input.keyboard.on('keydown-LEFT', keyEntry.moveLeft)
         this.input.keyboard.on('keydown-SPACE', keyEntry.submit)
         this.input.keyboard.on('keydown-ENTER', keyEntry.submit)
 

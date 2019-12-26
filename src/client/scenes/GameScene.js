@@ -5,8 +5,8 @@ import Lives from '../Lives'
 import Score from '../Score'
 import Messenger from '../Messenger'
 import SwipeController from '../SwipeController'
-import ColorManager from "../ColorManager";
-import { getGameScenePositions } from "../Positions";
+import ColorManager from '../ColorManager';
+import { getGameScenePositions } from '../Positions';
 import Display from '../Display';
 
 /**
@@ -19,18 +19,20 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
-       
+
         const p = getGameScenePositions(this)
         this.enemyGenerator = new EnemyGenerator(this)
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
         this.backgroundColor = GameInfo.players.remotePlayer.color
+        document.body.style.backgroundColor = this.backgroundColor
 
 
         while (this.foregroundColor === this.backgroundColor) {
             this.backgroundColor = ColorManager.getRandomColor()
         }
         this.cameras.main.setBackgroundColor(this.backgroundColor)
+        document.body.style.backgroundColor = this.backgroundColor
 
         //GROUPS
         this.platforms = this.physics.add.staticGroup()
@@ -121,6 +123,7 @@ export default class GameScene extends Phaser.Scene {
         this.flipColor = function () {
             let temp = this.backgroundColor
             this.backgroundColor = this.foregroundColor
+            document.body.style.backgroundColor = this.backgroundColor
             this.foregroundColor = temp
 
             this.gameObjects
@@ -130,6 +133,7 @@ export default class GameScene extends Phaser.Scene {
             this.lives.flipColor(this.foregroundColor)
 
             this.cameras.main.setBackgroundColor(this.backgroundColor)
+            document.body.style.backgroundColor = this.backgroundColor
         }
 
 
@@ -202,7 +206,7 @@ export default class GameScene extends Phaser.Scene {
     }
 }
 
-function score(scene, e) {
+const score = (scene, e) => {
     scene.enemies.remove(e).passed = true
     GameInfo.score++
     scene.displayedScore.setScore(GameInfo.score)
@@ -210,7 +214,7 @@ function score(scene, e) {
 
 }
 
-function initSocketEvents(scene) {
+const initSocketEvents = scene => {
     Messenger.getSocket()
         .on('switchturn', () => {
             scene.switchTurn()

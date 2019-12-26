@@ -1,5 +1,5 @@
 import Display from '../Display'
-import Textt from "../Textt"
+import Textt from '../Textt'
 import Messenger from '../Messenger'
 
 import { getGameOverScenePositions } from '../Positions'
@@ -25,7 +25,7 @@ export default class GameOverScene extends Phaser.Scene {
         let score = GameInfo.score
         this.rank = undefined
 
-        let mainTextValue = "Game Over"
+        let mainTextValue = 'Game Over'
         mainTextValue = mainTextValue.toUpperCase()
 
 
@@ -66,9 +66,10 @@ export default class GameOverScene extends Phaser.Scene {
             this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         }
 
-        console.log(p.scoreTextX, p.scoreTextY, scoreText, scale)
+        console.log(p.scoreTextX, p.scoreTextY, scoreText, scale, 'back',this.backgroundColor)
 
         this.cameras.main.setBackgroundColor(this.backgroundColor)
+        document.body.style.backgroundColor = this.backgroundColor  
 
         this.mainText = new Textt(this, p.mainTextX, p.mainTextY, mainTextValue, this.foregroundColor, 6 * Display.scaleX)
             .centerX()
@@ -125,9 +126,9 @@ export default class GameOverScene extends Phaser.Scene {
         }
 
         let menuItems = [
-            { text: "ENTER NAME", action: startNameEntry },
-            { text: "PLAY AGAIN", action: playAgain },
-            { text: "HIGH SCORES", action: startHighScores }
+            { text: 'ENTER NAME', action: startNameEntry },
+            { text: 'PLAY AGAIN', action: playAgain },
+            { text: 'HIGH SCORES', action: startHighScores }
         ]
 
         const scale = 3 * Display.scaleX
