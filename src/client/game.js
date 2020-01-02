@@ -70,9 +70,9 @@ const config = {
 }
 
 let game = new Phaser.Game(config)
-if (Display.mobile) {
-    document.getElementsByTagName('canvas')[0].style.position = 'absolute'
-    document.getElementsByTagName('canvas')[0].style.top = '0'
-    document.getElementsByTagName('canvas')[0].style.left = '0'
-}
+// if (Display.mobile) {
+//     document.getElementsByTagName('canvas')[0].style.position = 'absolute'
+//     document.getElementsByTagName('canvas')[0].style.top = '0'
+//     document.getElementsByTagName('canvas')[0].style.left = '0'
+// }
 

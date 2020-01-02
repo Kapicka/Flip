@@ -70,7 +70,7 @@ export default class FirstScene extends Phaser.Scene {
             { text: '2 PLAYER GAME', action: () => startGame('multi') },
             { text: 'HIGH SCORES', action: startHighScores },
             { text: 'TUTORIAL', action: startTutorial },
-            { text: 'RULES', action: startHelp }
+            { text: 'HELP', action: startHelp }
         ]
 
 
