@@ -29,7 +29,6 @@ export default class BootScene extends Phaser.Scene {
         this.load.audio('jump', require('../assets/Jump.wav'))
         this.load.audio('err', require('../assets/err.wav'))
         this.load.audio('au', require('../assets/au.wav'))
-        this.load.audio('cikcak', require('../assets/cikcak.wav'))
         this.load.audio('gameOver', require('../assets/gameOver.wav'))
 
 

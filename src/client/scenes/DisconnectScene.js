@@ -75,7 +75,6 @@ export default class DisconnectScene extends Phaser.Scene {
             .on('pointerup', () => {
                 this.scene.start('firstScene')
                 this.sound.play('confirm')
-
                 this.scene.stop('disconnectScene')
             })
     }
