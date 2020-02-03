@@ -67,6 +67,7 @@ export default class HelpScene extends Phaser.Scene {
 
 
         const showControl = () => {
+            this.sound.play('select')
             titleText.setText('CONTROL')
                 .centerX()
             mainText.setText(controlText)
@@ -75,6 +76,8 @@ export default class HelpScene extends Phaser.Scene {
 
         }
         const showRules = () => {
+            this.sound.play('select')
+
             titleText.setText('RULES')
                 .centerX()
             mainText.setText(rulesText)
@@ -94,6 +97,7 @@ export default class HelpScene extends Phaser.Scene {
             .setScale(p.homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
+                this.sound.play('select')
                 this.scene.start('firstScene')
                 this.scene.stop('tutorialScene')
             })

@@ -22,9 +22,9 @@ export default class EnemyGenerator extends EventEmitter {
         const scx = Display.gamingArea.scaleX
         const scy = Display.gamingArea.scaleY
         const w = Display.width
-        let velocity = -250 * scx
+        let velocity = -200 * scx
         let enemyScale = 5 * scx
-        let id = 0
+        let id = 1
 
         this.createEnemy = function (enm) {
             let x = enm.x * scx
@@ -102,32 +102,32 @@ let configs = [
         {
             type: 'flying',
             x: 129,
-            y: 220
+            y: 230
         },
         {
             type: 'flying',
             x: 251,
-            y: 210
+            y: 230
         },
         {
             type: 'flying',
             x: 370.5,
-            y: 220
+            y: 25
         },
         {
             type: 'flying',
             x: 517,
-            y: 220
+            y: 230
         },
         {
             type: 'flying',
             x: 640,
-            y: 220
+            y: 230
         },
         {
             type: 'flying',
             x: 991,
-            y: 220
+            y: 230
         },
         {
             type: 'running',

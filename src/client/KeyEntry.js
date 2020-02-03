@@ -22,8 +22,8 @@ export default class KeyEntry extends EventEmitter { //extends Phaser.GameObject
         setActiveChar(this, 'B', fg, bg)
 
         this.submit = () => {
-
             self.currentKey.emit('pointerdown')
+            this.emit('submitted')
         }
         this.moveUp = function () {
             let upKey = self.keyMap[self.currentKey.name].up
@@ -151,6 +151,7 @@ function createGraphics(scene, container, contx, conty, width, fg, bg) {
                 .setOrigin(0, 0)
                 .setScale(fontScale, fontScale)
             ch.hitArea = new Phaser.GameObjects.Zone(scene, x, y, fontWidth * 1.5, fontHeight)
+            let self = this
             ch.setInteractive()
                 .on('pointerover', function () {
                     setActiveChar(container, this.name, fg, bg)
@@ -160,7 +161,9 @@ function createGraphics(scene, container, contx, conty, width, fg, bg) {
     ).reduce((acc, curr) => acc.concat(curr))
     k.filter(key => key.name !== 'ok' && key.name !== 'rub')
         .forEach(key => key.on('pointerdown',
-            function () { container.emit('keydown', key.name) }))
+            function () {
+                container.emit('keydown', key.name)                
+            }))
     k = k.reduce((acc, curr) => { acc[curr.name] = curr; return acc }, {})
 
     let ok = k['ok']
@@ -176,6 +179,7 @@ function createGraphics(scene, container, contx, conty, width, fg, bg) {
 
 
 function setActiveChar(container, key, fg, bg) {
+    container.emit('keychanged')
     container.currentKey.setColor(bg)
     let k = container.keyImages[key]
     k.setColor(fg)

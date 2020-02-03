@@ -1,11 +1,16 @@
 import EnemyGenerator from '../EnemyGenerator'
 import Runner from '../gameSprites/Runner'
+import utils from '../utils'
 import GameInfo from '../GameInfo'
 import Lives from '../Lives'
 import Score from '../Score'
 import SwipeController from '../SwipeController'
 import ColorManager from '../ColorManager';
+import BackgroundObjectGenerator from '../BackgroundObjectGenerator'
 import { getGameScenePositions } from '../Positions';
+import Display from '../Display'
+import { timingSafeEqual } from 'crypto'
+
 
 
 export default class GameScene extends Phaser.Scene {
@@ -16,6 +21,7 @@ export default class GameScene extends Phaser.Scene {
     create() {
         const p = getGameScenePositions(this)
         this.enemyGenerator = new EnemyGenerator(this)
+        this.bgoGenerator = new BackgroundObjectGenerator(this)
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
         this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
@@ -29,7 +35,7 @@ export default class GameScene extends Phaser.Scene {
         this.movableObjects = this.add.group()
         this.gameObjects = this.add.group()
         this.platformers = this.add.group()
-
+        this.bgo = this.physics.add.group()
 
         this.platform = this.platforms.create(
             p.platformX,
@@ -48,6 +54,8 @@ export default class GameScene extends Phaser.Scene {
         this.gameObjects.add(this.platform)
 
 
+
+
         //RUNNER
         this.runner = new Runner(this, p.dudeX, p.dudeY, 'jumpingState', true)
             .setScale(p.dudeScale)
@@ -56,15 +64,28 @@ export default class GameScene extends Phaser.Scene {
         this.gameObjects.add(this.runner)
         this.movableObjects.add(this.runner)
 
+        this.runner.on('jump', () => this.sound.play('jump'))
 
+        this.runner.on('hit', () => {
+            this.lives.removeLive()
+            this.sound.play('au')
+        })
 
-        this.runner.on('hit', () => this.lives.removeLive())
+        // let music = this.sound.add('cikcak', {
+        //     loop: true
+        // }).play()
+
         this.runner.on('killed', () => {
             console.log('this is single game scene vole');
             console.log('this je ', this, 'papousku');
             this.scene.start('gameOverScene')
+            this.sound.play('gameOver')  
+            this.sound.play('au')  
+
+          
             this.scene.stop('singleGameScene')
         })
+
 
 
         //LIVES
@@ -103,7 +124,6 @@ export default class GameScene extends Phaser.Scene {
             enemy.flipY = true
         })
 
-
         this.flipColor = function () {
             let temp = this.backgroundColor
             this.backgroundColor = this.foregroundColor
@@ -115,6 +135,8 @@ export default class GameScene extends Phaser.Scene {
                 .forEach(go => go.flipColor(this.foregroundColor))
             this.displayedScore.flipColor(this.foregroundColor)
             this.lives.flipColor(this.foregroundColor)
+
+            this.bgo.getChildren().forEach(bg => bg.flipColor(this.backgroundColor))
 
             this.cameras.main.setBackgroundColor(this.backgroundColor)
         }
@@ -132,13 +154,33 @@ export default class GameScene extends Phaser.Scene {
         this.swipeController.on('down', () => this.action('slide'))
         this.input.keyboard.on('keydown-J', () => this.action('slide'))
         this.input.keyboard.on('keydown-K', () => this.action('jump'))
+
+
+
+        let offset = this.cameras.main.width / 4
+        for (let i = 0; i < 4; i++) {
+            let obj = this.bgoGenerator.generateRandom()
+            obj.setX(i * offset)
+        }
     }
+
+
 
     update() {
         if (this.runner.y > this.platform.y + this.platform.height) {
             this.runner.setY(this.runner.pivotY)
             this.runner.setVelocityY(0)
         }
+
+
+        if (Math.floor(Math.random() * 150) === 3) {
+            this.bgoGenerator.generateRandom()
+        }
+        this.bgo.getChildren().forEach(o => {
+            if (o.x < 0) { o.destroy() }
+        })
+
+
         this.enemyGenerator.generateEnemy()
         this.enemies.getChildren().forEach((e, i) => {
             if (e.x < this.runner.x && this.runner.currentState.name !== 'hitState') {
@@ -154,3 +196,5 @@ export default class GameScene extends Phaser.Scene {
 
     }
 }
+
+

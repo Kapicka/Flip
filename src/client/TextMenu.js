@@ -1,11 +1,12 @@
 import Textt from "./Textt"
-import {GameObjects} from "phaser"
-import {cpus} from "os"
-import {copyFile} from "fs"
+import { GameObjects } from "phaser"
+import { cpus } from "os"
+import { copyFile } from "fs"
+import { EventEmitter } from "events"
 
-export default class TextMenu {
+export default class TextMenu extends EventEmitter {
     constructor(scene, config) {
-
+        super()
         const texts = []
         const x = config.x
         const y = config.y
@@ -80,7 +81,7 @@ export default class TextMenu {
             }
         }
 
-        function createText(scene, x, y, text, activeColor, scale) {
+        const createText = (scene, x, y, text, activeColor, scale) => {
             let txt = new Textt(scene, x, y, text.text, activeColor, scale)
             txt.action = text.action
             txt.centerX
@@ -88,6 +89,7 @@ export default class TextMenu {
             txt.setInteractive()
             txt.on('pointerover', () => {
                 setActiveText(txt)
+                this.emit('selectionchanged', text)
             })
             txt.on('pointerdown', text.action)
             txt.action = text.action

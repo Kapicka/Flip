@@ -49,6 +49,7 @@ export default class DisconnectScene extends Phaser.Scene {
             GameInfo.players.remotePlayer = undefined
             this.scene.start('waitingScene')
             this.scene.stop('disconnectScene')
+            this.sound.play('confirm')
         }
 
         let config = {
@@ -73,6 +74,8 @@ export default class DisconnectScene extends Phaser.Scene {
             .setInteractive()
             .on('pointerup', () => {
                 this.scene.start('firstScene')
+                this.sound.play('confirm')
+
                 this.scene.stop('disconnectScene')
             })
     }

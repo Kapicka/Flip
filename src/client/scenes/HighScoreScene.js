@@ -32,13 +32,27 @@ export default class HelpScene extends Phaser.Scene {
         new Textt(this, p.nextX, p.nextY, 'NEXT', this.foregroundColor, p.normalTextScale)
             .setInteractive()
             .on('pointerdown', () => {
-                if (!this.currentShowCase.next()) this.cameras.main.flash()
+                if (!this.currentShowCase.next()) {
+                    this.cameras.main.flash()
+                    this.sound.play('err')
+                }
+                else {
+                    this.sound.play('select')
+                }
+
             })
 
         new Textt(this, p.prevX, p.prevY, 'PREV', this.foregroundColor, p.normalTextScale)
             .setInteractive()
             .on('pointerdown', () => {
-                if (!this.currentShowCase.prev()) this.cameras.main.flash()
+                if (!this.currentShowCase.prev()) {
+                    this.cameras.main.flash()
+                    this.sound.play('err')
+                }
+                else {
+                    this.sound.play('select')
+                }
+
             })
 
 
@@ -46,6 +60,7 @@ export default class HelpScene extends Phaser.Scene {
             .setInteractive()
 
         this.multi.on('pointerdown', () => {
+            this.sound.play('confirm')
             this.single.setDarken(false)
             this.multi.setDarken(true)
             show('multi')
@@ -54,6 +69,7 @@ export default class HelpScene extends Phaser.Scene {
         this.single = new Textt(this, p.singleX, p.singleY, 'SINGLE', this.foregroundColor, p.normalTextScale)
             .setInteractive()
         this.single.on('pointerdown', () => {
+            this.sound.play('confirm')
             this.single.setDarken(true)
             this.multi.setDarken(false)
             show('single')
@@ -174,6 +190,7 @@ export default class HelpScene extends Phaser.Scene {
             .setScale(p.homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
+                this.sound.play('confirm')
                 this.scene.start('firstScene')
                 this.scene.stop('tutorialScene')
             })

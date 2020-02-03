@@ -5,16 +5,14 @@ import Display from "../Display"
 /**
  * Runner reprezentuje hlavní postavu hry. 
  */
-
-
 export default class Runner extends GameSprite {
     constructor(scene, x, y, state) {
         super(scene, x, y, 'dude', 'run', true)
         this.default = { x: x, y: y }
         this.states = new States(this, scene)
         this.currentState = this.states[state]
-        this.lives = 3
-        this.id = 'dude'
+        this.lives = 1
+        this.id = 0
         this.pivotY = 240 * Display.gamingArea.scaleY
         this.body.setBounce(0.2)
     }
@@ -30,10 +28,7 @@ export default class Runner extends GameSprite {
     slide() {
         this.currentState.slide()
     }
-    // gap() {
-    //     this.currentState.gap()
-
-    // }
+    
 }
 
 

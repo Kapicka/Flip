@@ -33,6 +33,7 @@ export default class FirstScene extends Phaser.Scene {
 
 
         const startGame = (mode) => {
+            this.sound.play('confirm')
             GameInfo.init()
             GameInfo.mode = mode
             this.scene.start('menuScene')
@@ -40,10 +41,12 @@ export default class FirstScene extends Phaser.Scene {
         }
 
         const startTutorial = () => {
+            this.sound.play('confirm')
             this.scene.start('tutorialScene')
             this.scene.sleep()
         }
         const startHelp = () => {
+            this.sound.play('confirm')
             let color = ColorManager.getRandomColor()
             this.scene.start('helpScene', {
                 bg: color,
@@ -53,6 +56,7 @@ export default class FirstScene extends Phaser.Scene {
         }
 
         const startHighScores = () => {
+            this.sound.play('confirm')
             const fg = 'rgb(255,255,255)'
             const bg = ColorManager.getRandomExcept(fg)
 
@@ -82,12 +86,15 @@ export default class FirstScene extends Phaser.Scene {
             mobile: Display.mobile,
             items: menuItems
         }
+
+
         let textMenu = new TextMenu(this, menuConfig)
 
-        this.input.keyboard.on('keydown-J', () => textMenu.down())
-        this.input.keyboard.on('keydown-K', () => textMenu.up())
-        this.input.keyboard.on('keydown-UP', () => textMenu.up())
-        this.input.keyboard.on('keydown-DOWN', () => textMenu.down())
+        textMenu.on('selectionchanged', () => this.sound.play('select'))
+        this.input.keyboard.on('keydown-J', () => { textMenu.down(); this.sound.play('select') })
+        this.input.keyboard.on('keydown-K', () => { textMenu.up(); this.sound.play('select') })
+        this.input.keyboard.on('keydown-UP', () => { textMenu.up(); this.sound.play('select') })
+        this.input.keyboard.on('keydown-DOWN', () => { textMenu.down(); this.sound.play('select') })
         this.input.keyboard.on('keydown-SPACE', () => textMenu.submit())
         this.input.keyboard.on('keydown-ENTER', () => textMenu.submit())
 

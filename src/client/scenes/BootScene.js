@@ -17,10 +17,27 @@ export default class BootScene extends Phaser.Scene {
             require('../assets/pixelFont.png'),
             require('../assets/pixelFont.xml'))
 
+        this.load.atlasXML('bg',
+            require('../assets/bg.png'),
+            require('../assets/bg.xml'))
+
         this.load.atlasXML('buttons',
             require('../assets/buttons.png'),
             require('../assets/buttons.xml'))
+        this.load.audio('confirm', require('../assets/Confirm.wav'))
+        this.load.audio('select', require('../assets/Select.wav'))
+        this.load.audio('jump', require('../assets/Jump.wav'))
+        this.load.audio('err', require('../assets/err.wav'))
+        this.load.audio('au', require('../assets/au.wav'))
+        this.load.audio('cikcak', require('../assets/cikcak.wav'))
+        this.load.audio('gameOver', require('../assets/gameOver.wav'))
+
+
+
+
     }
+
+
     create() {
         Phaser.Display.Color.RGBToString()
         createAnimations(this)

@@ -27,7 +27,7 @@ export default class EnterNameScene extends Phaser.Scene {
         const activeColor = ('rgb(198,198,198)')
 
         this.cameras.main.setBackgroundColor(this.backgroudColor)
-        document.body.style.backgroundColor = this.backgroudColor  
+        document.body.style.backgroundColor = this.backgroudColor
 
         const keyEntry = new KeyEntry(this,
             0,
@@ -47,12 +47,14 @@ export default class EnterNameScene extends Phaser.Scene {
         let firstStroke = true
 
         keyEntry.on('keydown', char => {
+            this.sound.play('confirm')
             if (firstStroke) {
                 this.blinking.remove()
                 nameImage.setVisible(true)
                 blinkingImage.setVisible(false)
                 firstStroke = false
-                nameImage.centerX()
+                nameImage.centerX()             
+
             }
 
             if (name.length < 8) {
@@ -66,6 +68,7 @@ export default class EnterNameScene extends Phaser.Scene {
                 name = name.slice(0, name.length - 1)
                 nameImage.setText(name)
                 nameImage.centerX()
+                this.sound.play('confirm')
                 return
             }
             this.cameras.main.flash()
@@ -101,9 +104,15 @@ export default class EnterNameScene extends Phaser.Scene {
         keyEntry.on('ok', () => {
             if (name.length) {
                 addGame()
+                this.sound.play('confirm')
                 return
             }
             this.cameras.main.flash()
+        })
+
+        keyEntry.on('keychanged', () => {
+            this.sound.play('select')
+
         })
 
 

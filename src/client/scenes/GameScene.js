@@ -5,6 +5,8 @@ import Lives from '../Lives'
 import Score from '../Score'
 import Messenger from '../Messenger'
 import SwipeController from '../SwipeController'
+import BackgroundObjectGenerator from '../BackgroundObjectGenerator'
+
 import ColorManager from '../ColorManager';
 import { getGameScenePositions } from '../Positions';
 import Display from '../Display';
@@ -12,7 +14,16 @@ import Display from '../Display';
 /**
  * Herní scéna s logikou pro hru dvou hráčů. 
  */
-
+const bgObjects = ['cloud', 'tree', 'leaftree', 'cloud2', 'mountain', 'hill']
+function flipColor(color) {
+    let tint = 10
+    let rgb = color.substr(4, color.length - 5).split(',').map(n => Number(n) + tint)
+    if (rgb[0] > 255 || rgb[1] > 255 || rgb[2] > 255) {
+        rgb = rgb.map(c => c -= 2 * tint)
+    }
+    let hex = Phaser.Display.Color.RGBToString(rgb[0], rgb[1], rgb[2], 0, '0x')
+    this.setTintFill(hex)
+}
 export default class GameScene extends Phaser.Scene {
     constructor() {
         super({ key: 'gameScene' })
@@ -25,6 +36,8 @@ export default class GameScene extends Phaser.Scene {
         this.swipeController = new SwipeController(this, 30)
         this.foregroundColor = GameInfo.players.localPlayer.color
         this.backgroundColor = GameInfo.players.remotePlayer.color
+        this.bgoGenerator = new BackgroundObjectGenerator(this)
+
         document.body.style.backgroundColor = this.backgroundColor
 
 
@@ -41,6 +54,7 @@ export default class GameScene extends Phaser.Scene {
         this.gameObjects = this.add.group()
         this.enemies = this.add.group()
         this.platformers = this.add.group()
+        this.bgo = this.physics.add.group()
 
 
         //PLATFORMS
@@ -69,6 +83,10 @@ export default class GameScene extends Phaser.Scene {
         this.movableObjects.add(this.runner)
         this.runner.lives = 3
 
+        // this.music = this.sound.add('cikcak', {
+        //     loop: true
+        // }).play()
+
         //LIVES
         this.lives = new Lives(
             this,
@@ -95,17 +113,24 @@ export default class GameScene extends Phaser.Scene {
         })
 
         this.runner.on('killed', () => {
+
             Messenger.socket.emit('gameover')
             Messenger.socket.removeAllListeners()
             this.scene.start('gameOverScene')
             this.scene.stop('gameScene')
+            this.sound.play('gameOver')
+            this.sound.play('au')
             Messenger.socket.disconnect()
         })
 
         this.runner.on('hit', () => {
             this.lives.removeLive()
+            this.sound.play('au')
             Messenger.socket.emit('runnerhit')
         })
+
+
+        this.runner.on('jump', () => this.sound.play('jump'))
 
         //COLLIDERS AND OVERLAPS
         this.runnerCollider = this.physics.add.collider(this.platforms, this.runner,
@@ -120,6 +145,8 @@ export default class GameScene extends Phaser.Scene {
             enemy.flipY = true
         })
 
+
+
         this.flipColor = function () {
             let temp = this.backgroundColor
             this.backgroundColor = this.foregroundColor
@@ -131,7 +158,7 @@ export default class GameScene extends Phaser.Scene {
                 .forEach(go => go.flipColor(this.foregroundColor))
             this.displayedScore.flipColor(this.foregroundColor)
             this.lives.flipColor(this.foregroundColor)
-
+            this.bgo.getChildren().forEach(bg => bg.flipColor(this.backgroundColor))
             this.cameras.main.setBackgroundColor(this.backgroundColor)
             document.body.style.backgroundColor = this.backgroundColor
         }
@@ -145,6 +172,7 @@ export default class GameScene extends Phaser.Scene {
                 Messenger.socket.emit('switchturn')
             }
         }
+
 
         this.switchTurn = () => {
             GameInfo.onTurn = !GameInfo.onTurn
@@ -161,53 +189,91 @@ export default class GameScene extends Phaser.Scene {
 
 
         initSocketEvents(this)
+        this.timecount = 0
+
+
+        let offset = this.cameras.main.width / 4
+        for (let i = 0; i < 4; i++) {
+            let obj = this.bgoGenerator.generateRandom()
+            obj.setX(i * offset)
+            // Messenger.socket.emit('bgobjectcreated', {
+            //     x: obj.x,
+            //     y: obj.y,
+            //     key: obj.frame.name,
+            //     flipX: obj.flipX,
+            //     flipY: obj.flipY,
+            //     scale: obj.scaleX,
+            //     tint: obj.tnt,
+            //     z: obj.z
+            // })
+        }
+
+
+
+
     }
 
     update() {
+
+        //   this.timecount = (this.timecount + 1) % 1
+
 
         if (this.runner.y > this.platform.y + this.platform.height) {
             this.runner.setY(this.runner.pivotY)
             this.runner.setVelocityY(0)
         }
+        if (this.runner.prev.anim !== this.runner.anim) {
+
+            Messenger.socket.emit('animchanged', { id: this.runner.id, anim: this.runner.anim })
+            this.runner.prev.anim = this.runner.anim
+        }
 
         this.enemyGenerator.generateEnemy()
+
         this.enemies.getChildren().forEach((e, i) => {
             if (e.x < this.runner.x && this.runner.currentState.name !== 'hitState') {
                 score(this, e)
             }
-            if (e.x < 0) {
-                e.destroy()
-                Messenger.socket.emit('enemydestroyd', e.id)
+        })
+
+        this.movableObjects.getChildren().forEach(mo => {
+            if (mo.x < 0) {
+                mo.destroy()
+                Messenger.socket.emit('enemydestroyd', mo.id)
             }
         })
-        this.movableObjects.getChildren().forEach(go => {
-            const scx = Display.gamingArea.scaleX
-            const scy = Display.gamingArea.scaleY
 
-            let x = Math.floor(go.x)
-            let y = Math.floor(go.y)
-            let prevX = Math.floor(go.prev.x)
-            let prevY = Math.floor(go.prev.y)
-
-            if (x !== prevX || y !== prevY) {
-                go.prev.x = x
-                go.prev.y = y
-
-                x = Math.floor(x / scx)
-                y = Math.floor(y / scy)
-
-                Messenger.socket.emit('objectmoved', { id: go.id, x: x, y: y })
-            }
-            if (go.anim !== go.prev.anim) {
-                go.prev.anim = go.anim
-                Messenger.socket.emit('animchanged', { id: go.id, anim: go.anim })
-            }
+        // if (this.timecount === 4) {
+        let coords = this.movableObjects.getChildren().map(go => {
+            return { x: Math.floor(go.x), y: Math.floor(go.y), id: go.id }
         })
+
+        Messenger.socket.emit('coords', coords)
+
+        // }
+        if (Math.floor(Math.random() * 150) === 3) {
+            let obj = this.bgoGenerator.generateRandom()
+            // Messenger.socket.emit('bgobjectcreated', {
+            //     x: obj.x,
+            //     y: obj.y,
+            //     key: obj.texture.firstFrame,
+            //     vel: obj.velocityX,
+            //     scale: obj.scaleX,
+            //     tint: obj.tnt
+            // })
+
+        }
+
+        this.bgo.getChildren().forEach(o => {
+            if (o.x < 0) { o.destroy() }
+        })
+
     }
 }
 
 const score = (scene, e) => {
-    scene.enemies.remove(e).passed = true
+    scene.enemies.remove(e)
+    e.passed = true
     GameInfo.score++
     scene.displayedScore.setScore(GameInfo.score)
     Messenger.socket.emit('score')
@@ -222,8 +288,7 @@ const initSocketEvents = scene => {
         .on('disconnect', () => {
             scene.scene.start('disconnectScene', { subject: 'server' })
             Messenger.socket.disconnect()
-            scene.scene.stop('gameScene')
-
+            scene.scene.remove('gameScene')
         })
     Messenger.socket.on('playerdisconnect', () => {
         if (!GameInfo.gameOver) {
@@ -231,6 +296,8 @@ const initSocketEvents = scene => {
             scene.scene.start('disconnectScene', { subject: 'player' })
             scene.scene.stop('gameScene')
         } else {
+            scene.sound.play('gameOver')
+            this.sound.play('au')
             scene.scene.start('gameOverScene')
             Messenger.socket.removeAllListeners()
             Messenger.socket.disconnect()
@@ -241,6 +308,7 @@ const initSocketEvents = scene => {
         scene.scene.start('disconnectScene', { subject: 'server' })
         Messenger.socket.disconnect()
         scene.scene.stop(scene)
+
 
     })
         .on('gameover', (data) => {

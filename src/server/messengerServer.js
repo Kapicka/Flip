@@ -30,9 +30,14 @@ module.exports = function initMessenger(server) {
                 socket.to(room.id).emit('gameover')
                 room.gameOver = true
             })
-
+            socket.on('coords', (coords) => {
+                socket.to(room.id).emit('coords', coords)
+            })
             socket.on('gamePaused', () => {
                 socket.to(room.id).emit('gamePaused')
+            })
+            socket.on('bgobjectcreated', obj => {
+                socket.to(room.id).emit('bgobjectcreated',obj)
             })
             socket.on('gameResumed', () => {
                 socket.to(room.id).emit('gameResumed')

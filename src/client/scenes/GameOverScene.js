@@ -66,10 +66,10 @@ export default class GameOverScene extends Phaser.Scene {
             this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         }
 
-        console.log(p.scoreTextX, p.scoreTextY, scoreText, scale, 'back',this.backgroundColor)
+        console.log(p.scoreTextX, p.scoreTextY, scoreText, scale, 'back', this.backgroundColor)
 
         this.cameras.main.setBackgroundColor(this.backgroundColor)
-        document.body.style.backgroundColor = this.backgroundColor  
+        document.body.style.backgroundColor = this.backgroundColor
 
         this.mainText = new Textt(this, p.mainTextX, p.mainTextY, mainTextValue, this.foregroundColor, 6 * Display.scaleX)
             .centerX()
@@ -121,6 +121,7 @@ export default class GameOverScene extends Phaser.Scene {
         }
 
         const startNameEntry = () => {
+            this.sound.play('confirm')
             this.scene.start('enterNameScene', { rank: this.rank })
             this.scene.stop(this)
         }
@@ -142,12 +143,33 @@ export default class GameOverScene extends Phaser.Scene {
         }
 
         let textMenu = new TextMenu(this, menuConfig)
-        this.input.keyboard.on('keydown-J', () => textMenu.down())
-        this.input.keyboard.on('keydown-K', () => textMenu.up())
-        this.input.keyboard.on('keydown-DOWN', () => textMenu.down())
-        this.input.keyboard.on('keydown-UP', () => textMenu.up())
-        this.input.keyboard.on('keydown-SPACE', () => textMenu.submit())
-        this.input.keyboard.on('keydown-ENTER', () => textMenu.submit())
+        textMenu.on('selectionchanged', () => this.sound.play('select'))
+
+        this.input.keyboard.on('keydown-J', () => {
+            textMenu.down()
+            this.sound.play('select')
+        })
+        this.input.keyboard.on('keydown-K', () => {
+            textMenu.up()
+            this.sound.play('select')
+
+        })
+        this.input.keyboard.on('keydown-DOWN', () => {
+            textMenu.down()
+            this.sound.play('select')
+
+        })
+        this.input.keyboard.on('keydown-UP', () => { textMenu.up() })
+        this.input.keyboard.on('keydown-SPACE', () => {
+            textMenu.submit()
+            this.sound.play('select')
+
+        })
+        this.input.keyboard.on('keydown-ENTER', () => {
+            textMenu.submit()
+            this.sound.play('confirm')
+
+        })
 
         let homeButtonX = 30 * Display.scaleX
         let homeButtonY = 30 * Display.scaleX

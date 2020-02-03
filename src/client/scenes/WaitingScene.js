@@ -46,7 +46,7 @@ export default class WaitingScene extends Phaser.Scene {
         let index = Math.floor(Math.random() * this.colors.length - 1)
         let randomColor = this.colors.filter(c => c !== chosenColor)[index]
         this.cameras.main.setBackgroundColor(randomColor)
-        document.body.style.backgroundColor = randomColor  
+        document.body.style.backgroundColor = randomColor
 
         //DUDE
         let dude = this.add.sprite(dudeX, dudeY, 'otherSprites', 'dude_stand_0' + chosenColor)
@@ -115,10 +115,9 @@ export default class WaitingScene extends Phaser.Scene {
         time++
         if (time > 250) {
             time = 0
-            let index = Math.floor(Math.random() * this.colors.length - 1)
-            let randomColor = this.colors.filter(c => c !== chosenColor)[index]
+            let randomColor = ColorManager.getRandomExcept(chosenColor)
             this.cameras.main.setBackgroundColor(randomColor)
-            document.body.style.backgroundColor = randomColor  
+            document.body.style.backgroundColor = randomColor
         }
     }
 }

@@ -78,8 +78,7 @@ export default class MenuScene extends Phaser.Scene {
 
         colorIndex = Math.floor(Math.random() * colors.length)
         this.fg = colors[colorIndex]
-        let clrs = colors.filter(c => c !== this.fg)
-        this.bg = clrs[Math.floor(Math.random() * clrs.length)]
+        this.bg = ColorManager.getRandomExcept(this.fg)
 
 
         this.cameras.main.setBackgroundColor(this.bg)
@@ -108,12 +107,14 @@ export default class MenuScene extends Phaser.Scene {
 
         this.next = () => {
             colorIndex++
+            this.sound.play('select')
             if (colorIndex > colors.length - 1)
                 colorIndex = 0
             this.changeColor()
         }
         this.prev = () => {
             colorIndex--
+            this.sound.play('select')
             if (colorIndex < 0)
                 colorIndex = colors.length - 1
             this.changeColor()
@@ -140,6 +141,7 @@ export default class MenuScene extends Phaser.Scene {
             .setScale(homeButtonScale)
             .setInteractive()
             .on('pointerup', () => {
+                this.sound.play('confirm')
                 this.scene.start('firstScene')
                 GameInfo.prevScene = this.scene.key
             })
@@ -154,6 +156,7 @@ export default class MenuScene extends Phaser.Scene {
         const submit = () => {
             GameInfo.prevScene = this.scene.key
             GameInfo.players.localPlayer.color = colors[colorIndex]
+            this.sound.play('confirm')
             if (GameInfo.mode === 'multi') {
                 this.scene.start('waitingScene')
                 this.scene.sleep()
@@ -177,8 +180,7 @@ export default class MenuScene extends Phaser.Scene {
         this.changeColor = function () {
             this.fg = colors[colorIndex]
             if (this.fg === this.bg) {
-                let clrs = colors.filter(c => c !== this.fg)
-                this.bg = clrs[Math.floor(clrs.length * Math.random())]
+                this.bg = ColorManager.getRandomExcept(this.fg)
             }
 
             this.cameras.main.setBackgroundColor(this.bg)
@@ -202,7 +204,7 @@ export default class MenuScene extends Phaser.Scene {
 
     update(t, delta) {
         time++
-        if (time % 250 === 0) {         
+        if (time % 250 === 0) {
             this.bg = ColorManager.getRandomExcept(this.fg)
             this.cameras.main.setBackgroundColor(this.bg)
             document.body.style.backgroundColor = this.bg

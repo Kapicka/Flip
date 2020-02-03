@@ -49,7 +49,7 @@ export default class TutorialScene extends Phaser.Scene {
         this.foregroundColor = ColorManager.getRandomColor()
         this.backgroundColor = ColorManager.getRandomExcept(this.foregroundColor)
         this.cameras.main.setBackgroundColor(this.backgroundColor)
-        document.body.style.backgroundColor = this.backgroundColor  
+        document.body.style.backgroundColor = this.backgroundColor
 
 
 
@@ -67,6 +67,7 @@ export default class TutorialScene extends Phaser.Scene {
             .setScale(3 * Display.scaleX)
             .setInteractive()
             .on('pointerup', () => {
+                this.sound.play('confirm')
                 this.scene.start('firstScene')
                 this.scene.stop('tutorialScene')
             })
@@ -112,6 +113,8 @@ export default class TutorialScene extends Phaser.Scene {
         this.runner.lives = 10000
 
 
+        this.runner.on('jump', () => { this.sound.play('jump') })
+        this.runner.on('hit', () => { this.sound.play('err') })
 
         this.stages = new Stages(this)
         this.currentStage = this.stages['jumpStage']
@@ -207,7 +210,7 @@ export default class TutorialScene extends Phaser.Scene {
                 .forEach(go => go.flipColor(this.foregroundColor))
 
             this.cameras.main.setBackgroundColor(this.backgroundColor)
-            document.body.style.backgroundColor = this.backgroundColor  
+            document.body.style.backgroundColor = this.backgroundColor
         }
         let i = 0
 

@@ -27,10 +27,11 @@ export default class GameSprite extends Phaser.Physics.Arcade.Sprite {
     }
     setAnim(anim) {
         this.anim = anim
+        this.prev.anim = anim
         this.play(this.character + this.anim + this.color)
         return this
     }
-    resize(){
+    resize() {
 
     }
 }
