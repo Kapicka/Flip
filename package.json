@@ -1,30 +1,33 @@
 {
-  "name": "flip",
-  "version": "1.0.0",
-  "engines": {
-    "node": "10.16.0",
-    "npm": "6.9.0"
-  },
-  "description": "",
-  "main": "src/client/game.js",
-  "scripts": {
-    "start": "cd src/server;node server.js",
-    "db": "mongod --dbpath data",
-    "build": "parcel build src/client/index.html",
-    "app": "cd src/server;node serverProd.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "mongodb": "^3.3.3",
-    "phaser": "^3.17.0",
-    "socket.io": "^2.2.0",
-    "socket.io-client": "^2.2.0"
-  },
-  "devDependencies": {
-    "parcel-bundler": "^1.12.4"
-  }
-}
+    "name": "flip",
+    "version": "1.0.0",
+    "engines": {
+        "node": "10.16.0",
+        "npm": "6.9.0"
+    },
+    "description": "",
+    "main": "src/client/game.js",
+    "scripts": {
+        "start": "cd src/server;node server.js",
+        "db": "mongod --dbpath data",
+        "build": "parcel build src/client/index.html",
+        "app": "cd src/server;node serverProd.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "mongodb": "^3.3.3",
+        "phaser": "^3.17.0",
+        "socket.io": "^2.2.0",
+        "socket.io-client": "^2.2.0"
+    },
+    "devDependencies": {
+        "parcel-bundler": "^1.12.4"
+        "acorn": ">=5.7.4",
+        "minimist": ">=1.2.3",
+        "kind-of": ">=6.0.3",
+        "serialize-to-js": ">=3.0.1"
+    }
